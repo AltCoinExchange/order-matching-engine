@@ -1,9 +1,15 @@
-import { Get, Controller } from '@nestjs/common';
+import {Get, Controller, Param} from "@nestjs/common";
+import {EthEngine} from "altcoinio-wallet";
 
-@Controller('data')
+@Controller("data")
 export class DataController {
     @Get()
-    root(): string {
-        return '...Keep on keeping on...';
+    public root(): string {
+        return "...Keep on keeping on...";
+    }
+
+    @Get("transactions:address")
+    public getAccountTransactions(@Param() params): string {
+        return "transaction from address: " + params.address;
     }
 }

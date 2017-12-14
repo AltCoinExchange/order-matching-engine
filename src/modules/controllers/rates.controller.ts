@@ -1,13 +1,13 @@
-import { Get, Controller } from '@nestjs/common';
+import { Get, Controller } from "@nestjs/common";
 
-@Controller('rates')
+@Controller("rates")
 export class RatesController {
     @Get()
-    root(): string {
-        return '...Keep on keeping on...';
+    public root(): string {
+        return "...Keep on keeping on...";
     }
-    @Get('rate')
-    getRate(): string {
-        return '{"ETH": 0.01}';
+    @Get("rate")
+    public getRate(): string {
+        return "{\"ETH\": 0.01}";
     }
 }

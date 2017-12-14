@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import {RatesController} from './controllers/rates.controller';
-import {DataController} from './controllers/data.controller';
+import {Module} from "@nestjs/common";
+import {AppController} from "./app.controller";
+import {RatesController} from "./controllers/rates.controller";
+import {DataController} from "./controllers/data.controller";
 
 @Module({
   modules: [],
