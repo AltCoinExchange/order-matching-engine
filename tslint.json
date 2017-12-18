@@ -6,6 +6,7 @@
         "quotemark": true,
         "max-classes-per-file": [7],
         "radix": false,
-        "member-ordering": false
+        "member-ordering": false,
+        "no-console": false
     }
 }

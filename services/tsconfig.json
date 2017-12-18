@@ -5,18 +5,18 @@
     "noImplicitAny": false,
     "removeComments": true,
     "noLib": false,
-    "lib": [
-      "es6", "ES2015"
-    ],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es6",
+    "lib": [
+      "es6", "ES2015"
+    ],
     "sourceMap": true,
     "allowJs": true,
-    "outDir": "./dist"
+    "outDir": "./services/dist"
   },
   "include": [
-    "src/**/*"
+    "services/**/*"
   ],
   "exclude": [
     "node_modules",

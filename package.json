@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node index.js",
+    "start-eth": "node services/index.js",
+    "start-eth:watch": "nodemon services/nodemon.json",
     "start:watch": "nodemon",
     "prestart:prod": "tsc",
     "start:prod": "node dist/server.js"
@@ -15,6 +17,7 @@
     "@nestjs/microservices": "^4.4.0",
     "@nestjs/testing": "^4.4.0",
     "@nestjs/websockets": "^4.4.0",
+    "core-js": "^2.5.3",
     "mongodb": "^3.0.0-rc0",
     "redis": "^2.7.1",
     "reflect-metadata": "^0.1.10",

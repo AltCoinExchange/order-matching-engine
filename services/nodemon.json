@@ -1,0 +1,6 @@
+{
+  "watch": ["services"],
+  "ext": "ts",
+  "ignore": ["services/**/*.spec.ts"],
+  "exec": "node ./services/index"
+}
