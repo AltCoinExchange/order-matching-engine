@@ -1,4 +1,0 @@
-[submodule "altcoin-atomic-trading-platform"]
-	path = altcoin-atomic-trading-platform
-	url = https://github.com/AltCoinExchange/altcoin-atomic-trading-platform.git
-	branch = dev
