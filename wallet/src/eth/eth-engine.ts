@@ -186,6 +186,9 @@ export class EthEngine {
     return false;
   }
 
+  public async getBlockNumber() {
+    return await this.web3.eth.getBlockNumber();
+  }
   /**
    * Get the blocks from chain
    * Basically we could make full client out of this
@@ -268,9 +271,6 @@ export class EthEngine {
           const spaces = Array(1 + numSpaces).join(" ");
 
           process.stdout.write("\r" + msg + spaces + "\n");
-          if (callback) {
-            callback(gotError, stoppingBlock);
-          }
         }
         resolve(results);
         return numThreads;
@@ -278,7 +278,10 @@ export class EthEngine {
 
       function scanBlockCallback(block) {
         if (block.transactions) {
-          results.push(block);
+          // results.push(block);
+          if (callback) {
+            callback(block);
+          }
         //   for (const i of block.transactions) {
         //     const txn = i;
         //     scanTransactionCallback(txn, block);

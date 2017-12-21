@@ -4,31 +4,87 @@ import {EthConfiguration} from "./config/eth";
 import "core-js/es6/reflect";
 import "core-js/es7/reflect";
 import "reflect-metadata";
-
-// declare abstract class Reflect {
-//     public static getMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-//     public static getOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-//     public static getOwnMetadata(metadataKey: any, target: Object): any;
-//     public static defineMetadata(metadataKey: any, metadataValue: any,
-//                                  target: Object, targetKey?: string | symbol): void;
-// }
+import * as Mongoose from "mongoose";
+import {Collection} from "mongoose";
 
 export class EthFeeder extends FeederService {
-    public ethEngine: EthEngine;
-    constructor() {
-        super();
-        this.ethEngine = new EthEngine(null, EthConfiguration.hosts[0], null);
-        this.startService();
+  public ethEngine: EthEngine;
+  private currentBlockNumber: number = 0;
+  private lastBlockNumber: number = 0;
+  private collection: Collection;
+
+  constructor() {
+    super();
+    this.ethEngine = new EthEngine(null, EthConfiguration.hosts[0], null);
+    this.startService();
+  }
+
+  public async WatchForChanges() {
+    const that = this;
+    return await new Promise(async (resolve, reject) => {
+      setInterval(async (e) => {
+        const blockNumber =  await this.ethEngine.getBlockNumber();
+        if (blockNumber !== that.currentBlockNumber) {
+            console.log("Found incoming block");
+            await that.storeBlock(that.collection, that.currentBlockNumber + 1, blockNumber);
+        }
+      }, 5 * 1000);
+    });
+  }
+
+  public async createDb(init: boolean = true): Promise<Collection> {
+    const that = this;
+    await Mongoose.connect("mongodb://127.0.0.1:27017/eth", {useMongoClient: true});
+    const coll = Mongoose.connection.collection("eth");
+    if (init) {
+      // If DB is empty then create indexes
+      const cnt = await coll.count({});
+      if (cnt === 0) {
+        const all = await coll.deleteMany({});
+        const index = await coll.createIndex({"transaction.from": 1, "transaction.to": 1, "number": 1});
+      } else {
+        const block = await this.getLastBlock(coll);
+        this.lastBlockNumber = block.number;
+      }
+    }
+    this.collection = coll;
+    return coll;
+  }
+
+  public async storeBlock(coll: Collection, startingBlock, stoppingBlock) {
+    await this.ethEngine.scanBlockRange(startingBlock, stoppingBlock, async (b) => {
+      if (b.transactions.length > 0) {
+        console.log(b);
+        await coll.insertOne(b);
+      }
+    });
+  }
+
+  public async getLastBlock(coll: Collection): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const lastBlock = await coll.find().sort({number: -1}).limit(1);
+      lastBlock.next((err, block) => {
+        resolve(block);
+      });
+    });
+  }
+
+  public async startService() {
+    const blockNumber = await this.ethEngine.getBlockNumber();
+    this.currentBlockNumber = blockNumber;
+    const coll = await this.createDb();
+    let startingBlock: number = 0;
+    if (this.lastBlockNumber === 0) {
+      startingBlock = 1;
     }
 
-    public async startService() {
-        const result = await this.ethEngine.scanBlockRange();
-        console.log(result);
-    }
+    await this.storeBlock(coll, startingBlock, blockNumber);
+    await this.WatchForChanges();
+  }
 }
 
 async function bootstrap() {
-    const feeder = new EthFeeder();
+  const feeder = new EthFeeder();
 }
 
 bootstrap();
