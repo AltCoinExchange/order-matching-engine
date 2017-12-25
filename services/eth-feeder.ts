@@ -44,6 +44,7 @@ export class EthFeeder extends FeederService {
         const index = await coll.createIndex({"transaction.from": 1, "transaction.to": 1, "number": 1});
       } else {
         const block = await this.getLastBlock(coll);
+        console.log("Last block:", block.number);
         this.lastBlockNumber = block.number;
       }
     }
