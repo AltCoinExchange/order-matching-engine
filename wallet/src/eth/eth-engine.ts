@@ -14,7 +14,7 @@ export enum EthConfirmation {
 export class EthEngine {
   protected web3: any;
   private contract: Contract;
-  private maxThreads = 20;
+  private maxThreads = 10;
   private firstBlockNumber = 1909000;
 
   constructor(private abiConfiguration, public configuration, private bin) {
