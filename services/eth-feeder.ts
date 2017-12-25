@@ -81,6 +81,8 @@ export class EthFeeder extends FeederService {
     let startingBlock: number = 0;
     if (this.lastBlockNumber === 0) {
       startingBlock = 1;
+    } else {
+      startingBlock = this.lastBlockNumber;
     }
 
     await this.storeBlock(coll, startingBlock, blockNumber);
