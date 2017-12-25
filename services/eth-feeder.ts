@@ -54,7 +54,7 @@ export class EthFeeder extends FeederService {
   public async storeBlock(coll: Collection, startingBlock, stoppingBlock) {
     await this.ethEngine.scanBlockRange(startingBlock, stoppingBlock, async (b) => {
       if (b.transactions.length > 0) {
-        console.log(b);
+        // console.log(b);
         await coll.insertOne(b);
       }
     });
