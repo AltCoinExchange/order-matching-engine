@@ -16,7 +16,7 @@ export class DataController {
 
     const transactions = {} as any;
     // TODO: Probably this should occur at engine to not pass : into parameters
-    params.address = params.address.slice(1);
+    params.address = params.address.slice(1).toLowerCase();
     const from = await coll.findOne({ "transactions.from" : params.address });
     const to = await coll.findOne({ "transactions.to" : params.address });
 

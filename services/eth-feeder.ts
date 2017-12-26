@@ -43,9 +43,9 @@ export class EthFeeder extends FeederService {
       if (cnt === 0) {
         const all = await coll.deleteMany({});
         const fromIndex = await coll.createIndex({ "transactions.from": 1 },
-          { collation: { locale: "en", strength: 1 } });
+          { collation: { locale: "en_US", strength: 2 } });
         const toIndex = await coll.createIndex({ "transactions.to": 1 },
-          { collation: { locale: "en", strength: 1 } });
+          { collation: { locale: "en_US", strength: 2 } });
         const num = await coll.createIndex({number: 1});
       } else {
         const block = await this.getLastBlock(coll);
@@ -62,6 +62,10 @@ export class EthFeeder extends FeederService {
       if (b.transactions.length > 0) {
         // console.log(b);
         try {
+          for (const i of b.transactions) {
+            i.from = i.from.toLowerCase();
+            i.to = i.to.toLowerCase();
+          }
           await coll.insertOne(b);
         } catch (e) {
           console.log(e);
