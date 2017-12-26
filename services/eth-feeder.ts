@@ -13,10 +13,10 @@ export class EthFeeder extends FeederService {
   private lastBlockNumber: number = 0;
   private collection: Collection;
 
-  constructor() {
+  constructor(blockNum?) {
     super();
     this.ethEngine = new EthEngine(null, EthConfiguration.hosts[0], null);
-    this.startService();
+    this.startService(blockNum);
   }
 
   public async WatchForChanges() {
@@ -74,15 +74,17 @@ export class EthFeeder extends FeederService {
     });
   }
 
-  public async startService() {
+  public async startService(blockNum?) {
     const blockNumber = await this.ethEngine.getBlockNumber();
     this.currentBlockNumber = blockNumber;
     const coll = await this.createDb();
-    let startingBlock: number = 0;
-    if (this.lastBlockNumber === 0) {
-      startingBlock = 1;
-    } else {
-      startingBlock = this.lastBlockNumber;
+    let startingBlock: number = blockNum > 0 ? parseInt(blockNum) : 0;
+    if (startingBlock === 0) {
+      if (this.lastBlockNumber === 0) {
+        startingBlock = 1;
+      } else {
+        startingBlock = this.lastBlockNumber;
+      }
     }
 
     await this.storeBlock(coll, startingBlock, blockNumber);
@@ -91,7 +93,8 @@ export class EthFeeder extends FeederService {
 }
 
 async function bootstrap() {
-  const feeder = new EthFeeder();
+  const args = process.argv.slice(2);
+  const feeder = new EthFeeder(args[0]);
 }
 
 bootstrap();
