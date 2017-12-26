@@ -10,11 +10,24 @@ export class DataController {
   }
 
   @Get("transactions:address")
-  public async getAccountTransactions(@Param() params): Promise<string> {
+  public async getAccountTransactions(@Param() params): Promise<any> {
     await Mongoose.connect("mongodb://127.0.0.1:27017/eth", {useMongoClient: true});
     const coll = Mongoose.connection.collection("eth");
 
-    coll.findOne({ "transaction.from" : params.address});
-    return "transaction from address: " + params.address;
+    const transactions = {} as any;
+    // TODO: Probably this should occur at engine to not pass : into parameters
+    params.address = params.address.slice(1);
+    const from = await coll.findOne({ "transactions.from" : params.address });
+    const to = await coll.findOne({ "transactions.to" : params.address });
+
+    if (from !== null) {
+      transactions.from = from.transactions;
+    }
+
+    if (to !== null) {
+      transactions.to = to.transactions;
+    }
+
+    return transactions;
   }
 }
