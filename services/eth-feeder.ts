@@ -64,7 +64,10 @@ export class EthFeeder extends FeederService {
         try {
           for (const i of b.transactions) {
             i.from = i.from.toLowerCase();
-            i.to = i.to.toLowerCase();
+            // Needed for transactions which involved contract creation
+            if (i.to !== null) {
+              i.to = i.to.toLowerCase();
+            }
           }
           await coll.insertOne(b);
         } catch (e) {
