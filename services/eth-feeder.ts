@@ -27,6 +27,7 @@ export class EthFeeder extends FeederService {
         if (blockNumber !== that.currentBlockNumber) {
             console.log("Found incoming block");
             await that.storeBlock(that.collection, that.currentBlockNumber + 1, blockNumber);
+            that.currentBlockNumber = blockNumber;
         }
       }, 5 * 1000);
     });
