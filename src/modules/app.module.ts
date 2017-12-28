@@ -18,7 +18,7 @@ export class ApplicationModule implements NestModule {
       RatesController, DataController, // { path: "/transaction", method: RequestMethod.GET },
     );
     consumer.apply(IpBlockerMiddleware).forRoutes(
-      DataController, // { path: "/transaction", method: RequestMethod.GET },
+      OrdersController, // { path: "/transaction", method: RequestMethod.GET },
     );
   }
 }
