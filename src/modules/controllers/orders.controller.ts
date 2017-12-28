@@ -13,6 +13,7 @@ export class OrdersController {
   public async addOder(@Param() params): Promise<any> {
     ParamsHelper.filterParams(params);
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
-    return await coll.insertOne(params);
+    return "test";
+    // return await coll.insertOne(params);
   }
 }

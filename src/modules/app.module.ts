@@ -4,6 +4,7 @@ import {RatesController} from "./controllers/rates.controller";
 import {DataController} from "./controllers/data.controller";
 import {LoggerMiddleware} from "./middleware/logger.middleware";
 import {OrdersController} from "./controllers/orders.controller";
+import {IpBlockerMiddleware} from './middleware/ipblocker.middleware';
 
 @Module({
   modules: [],
@@ -15,6 +16,9 @@ export class ApplicationModule implements NestModule {
   public configure(consumer: MiddlewaresConsumer): void {
     consumer.apply(LoggerMiddleware).forRoutes(
       RatesController, DataController, // { path: "/transaction", method: RequestMethod.GET },
+    );
+    consumer.apply(IpBlockerMiddleware).forRoutes(
+      DataController, // { path: "/transaction", method: RequestMethod.GET },
     );
   }
 }
