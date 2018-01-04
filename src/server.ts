@@ -6,7 +6,7 @@ import * as fs from "fs";
 import * as https from "https";
 import {Config} from "./config/config";
 
-async function bootstrap(serveHttps: boolean = true) {
+async function bootstrap(serveHttps: boolean = false) {
 
   if (serveHttps) {
     const options = {
@@ -15,11 +15,11 @@ async function bootstrap(serveHttps: boolean = true) {
     };
 
     const expressApp = require("express")();
-    expressApp.use((req, res, next) => {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      next();
-    });
+    // expressApp.use((req, res, next) => {
+    //   res.header("Access-Control-Allow-Origin", "*");
+    //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    //   next();
+    // });
 
     const httpsServer = https.createServer(options, expressApp);
     const app = await NestFactory.create(ApplicationModule, expressApp);
