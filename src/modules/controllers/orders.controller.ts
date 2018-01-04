@@ -15,15 +15,29 @@ export class OrdersController {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     params.status = "new";
     params.expiration = new Date(params.expiration);
+    params.buyerAddress = "";
     return await coll.insertOne(params);
   }
 
   @Get("getActiveOrders")
-  public async getActiveOrders(@Param() params): Promise<any> {
-    ParamsHelper.filterParams(params);
+  public async getActiveOrders(): Promise<any> {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
     return await coll.find({status: "new", expiration: { $gte: now }},
-      { buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
+      { _id: 1, buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
+  }
+
+  @Get("buyOrder:/id:/address")
+  public async buyOrder(@Param() params): Promise<any> {
+    ParamsHelper.filterParams(params);
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    const order = await coll.findOneAndUpdate( { _id: params.id, status: "new", expiration: { $gte: now } },
+      { status: "in_progress", buyerAddress: params.address });
+    if (order == null) {
+      return { status: "Order expired or already fulfilled" };
+    } else {
+      return { status: true };
+    }
   }
 }
