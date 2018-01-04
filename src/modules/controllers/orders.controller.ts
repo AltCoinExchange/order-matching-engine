@@ -13,7 +13,17 @@ export class OrdersController {
   public async addOder(@Param() params): Promise<any> {
     ParamsHelper.filterParams(params);
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
-    return "test";
-    // return await coll.insertOne(params);
+    params.status = "new";
+    params.expiration = new Date(params.expiration);
+    return await coll.insertOne(params);
+  }
+
+  @Get("getActiveOrders")
+  public async getActiveOrders(@Param() params): Promise<any> {
+    ParamsHelper.filterParams(params);
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    return await coll.find({status: "new", expiration: { $gte: now }},
+      { buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
   }
 }
