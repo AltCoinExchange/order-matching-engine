@@ -4,7 +4,7 @@ import {RatesController} from "./controllers/rates.controller";
 import {DataController} from "./controllers/data.controller";
 import {LoggerMiddleware} from "./middleware/logger.middleware";
 import {OrdersController} from "./controllers/orders.controller";
-import {IpBlockerMiddleware} from './middleware/ipblocker.middleware';
+import {IpBlockerMiddleware} from "./middleware/ipblocker.middleware";
 
 @Module({
   modules: [],

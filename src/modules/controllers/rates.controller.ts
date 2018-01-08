@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import * as Mongoose from "mongoose";
-import { Transactional } from "../db/transaction";
+import { Transactional } from "../db/transactional";
 
 @Controller("rates")
 export class RatesController {
@@ -14,7 +14,8 @@ export class RatesController {
   public async getRate(): Promise<any> {
     const coll = Mongoose.connection.collection("eth");
     const cnt = await coll.count({});
-    console.log(cnt);
-    return "{\"ETH\": 0.01}";
+    return {
+      ETH: cnt,
+    };
   }
 }
