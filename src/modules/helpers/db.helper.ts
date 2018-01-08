@@ -1,5 +1,5 @@
 import * as Mongoose from "mongoose";
-import {Collection} from "mongoose";
+import { Collection } from "mongoose";
 
 export enum Collections {
   ORDERS = 1,
@@ -28,10 +28,10 @@ export class DbHelper {
     if (collectionName === Collections.ORDERS) {
       if (cnt === 0) {
         const all = await coll.deleteMany({});
-        const status = await coll.createIndex({status: 1},
-          {collation: {locale: "en_US", strength: 2}});
-        const address = await coll.createIndex({address: 1},
-          {collation: {locale: "en_US", strength: 2}});
+        // const status = await coll.createIndex({status: 1}, /// TODO HMM this part not compiling
+        //   {collation: {locale: "en_US", strength: 2}});
+        // const address = await coll.createIndex({address: 1},
+        //   {collation: {locale: "en_US", strength: 2}});
         const exipration = await coll.createIndex({expiration: 1});
       }
     }
