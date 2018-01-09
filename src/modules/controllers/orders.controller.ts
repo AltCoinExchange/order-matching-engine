@@ -9,13 +9,21 @@ export class OrdersController {
     return "...Keep on keeping on...";
   }
 
-  @Get("addOrder/:address/:buyCurrency/:buyAmount/:sellCurrency/:sellAmount/:expiration")
+  @Get("addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:numSwaps/:expiration")
   public async addOder(@Param() params): Promise<any> {
     ParamsHelper.filterParams(params);
+    // TODO: Heavy validation
+    const minAmount = parseInt(params.numSwaps);
+    // TODO Get from config
+    if (minAmount <= 0 && minAmount > 10) {
+      return { status: "minAmount should be between 1 and 10" };
+    }
+
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     params.status = "new";
     params.expiration = new Date(params.expiration);
     params.buyerAddress = "";
+    params.minAmount = parseFloat(params.sellAmount) / minAmount;
     return await coll.insertOne(params);
   }
 

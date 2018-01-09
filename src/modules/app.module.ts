@@ -5,6 +5,8 @@ import {DataController} from "./controllers/data.controller";
 import {LoggerMiddleware} from "./middleware/logger.middleware";
 import {OrdersController} from "./controllers/orders.controller";
 import {IpBlockerMiddleware} from "./middleware/ipblocker.middleware";
+import {LongPoolingMiddleware} from "./middleware/long-pooling.middleware";
+// import {LongPoolingMiddleware} from "./middleware/long-pooling.middleware";
 
 @Module({
   modules: [],
@@ -17,9 +19,16 @@ export class ApplicationModule implements NestModule {
     consumer.apply(LoggerMiddleware).forRoutes(
       RatesController, DataController, // { path: "/transaction", method: RequestMethod.GET },
     );
-    consumer.apply(IpBlockerMiddleware).forRoutes(
+    // TODO: Enable in the prod
+    // consumer.apply(IpBlockerMiddleware).forRoutes(
+    //   // OrdersController,
+    //   { path: "orders/addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:expiration",
+    //     method: RequestMethod.GET },
+    // );
+    consumer.apply(LongPoolingMiddleware).forRoutes(
       // OrdersController,
-      { path: "/addOrder", method: RequestMethod.GET },
+      { path: "orders/addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:expiration",
+        method: RequestMethod.GET },
     );
   }
 }
