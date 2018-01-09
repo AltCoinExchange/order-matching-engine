@@ -34,7 +34,6 @@ export class EthFeeder extends FeederService {
   }
 
   public async createDb(init: boolean = true): Promise<Collection> {
-    const that = this;
     await Mongoose.connect("mongodb://127.0.0.1:27017/eth", {useMongoClient: true});
     const coll = Mongoose.connection.collection("eth");
     if (init) {
