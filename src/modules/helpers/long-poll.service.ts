@@ -47,6 +47,7 @@ export class LongPollService {
         from: req.params.from,
         to: req.params.to,
         amount: req.params.amount,
+        address: req.params.address,
       } as IOrder;
       this.order.next(order); /// i jos svi ostali podatci coin, value etc
       console.log("CREATING ORDER", req.id);
@@ -60,4 +61,5 @@ export interface IOrder {
   from: string;
   to: string;
   amount: number;
+  address: string;
 }
