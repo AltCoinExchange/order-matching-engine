@@ -22,7 +22,7 @@ export class LongPollService {
         const orderId = uuidv4().replace(/-/g, "");
 
         pairs.forEach((pair, index) => {
-          this.lp.publishToId("/order/:id/:from/:to/:amount", pair, {
+          this.lp.publishToId("/order/:id/:from/:to/:amount/:address", pair, {
             order_id: orderId,
             side: index % 2 === 0 ? "a" : "b"
           });
@@ -40,7 +40,7 @@ export class LongPollService {
 
   public setExpressInstance(expressApp) {
     this.lp = expressLP(expressApp);
-    this.lp.create("/order/:id/:from/:to/:amount", (req, res, next) => {
+    this.lp.create("/order/:id/:from/:to/:amount/:address", (req, res, next) => {
       req.id = req.params.id;
       const order = {
         id: req.params.id,
