@@ -6,10 +6,10 @@ import {LoggerMiddleware} from "./middleware/logger.middleware";
 import {OrdersController} from "./controllers/orders.controller";
 import {IpBlockerMiddleware} from "./middleware/ipblocker.middleware";
 import {LongPoolingMiddleware} from "./middleware/long-pooling.middleware";
-// import {LongPoolingMiddleware} from "./middleware/long-pooling.middleware";
+import {EventsModule} from "./events/events.module";
 
 @Module({
-  modules: [],
+  modules: [EventsModule],
   controllers: [AppController, RatesController, DataController, OrdersController],
   components: [],
 })
