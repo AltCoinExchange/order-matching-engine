@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as https from "https";
 import { Config } from "./config/config";
 import { ApplicationModule } from "./modules/app.module";
-import { LongPollService } from "./modules/helpers/express.helper.service";
+import { LongPollService } from "./modules/helpers/long-poll.service";
 
 
 async function bootstrap(serveHttps: boolean = false) {
