@@ -6,7 +6,7 @@ const uuidv4 = require("uuid/v4");
 
 export class LongPollService {
   private static instance;
-  private order: Subject<any> = new Subject<any>();
+  private order: Subject<IOrder> = new Subject<IOrder>();
   private lp;
 
   constructor() {
@@ -15,14 +15,14 @@ export class LongPollService {
     }
 
     let pairs = [];
-    this.order.delay(1000).subscribe((resp) => {
-      console.log("RECEIVING ORDER", resp);
-      pairs.push(resp);
+    this.order.delay(1000).subscribe((order: IOrder) => {
+      console.log("RECEIVING ORDER", order);
+      pairs.push(order.id);
       if (pairs && pairs.length >= 2) {
         const orderId = uuidv4().replace(/-/g, "");
 
         pairs.forEach((pair, index) => {
-          this.lp.publishToId("/order/:id", pair, {
+          this.lp.publishToId("/order/:id/:from/:to/:amount", pair, {
             order_id: orderId,
             side: index % 2 === 0 ? "a" : "b"
           });
@@ -40,11 +40,24 @@ export class LongPollService {
 
   public setExpressInstance(expressApp) {
     this.lp = expressLP(expressApp);
-    this.lp.create("/order/:id", (req, res, next) => {
+    this.lp.create("/order/:id/:from/:to/:amount", (req, res, next) => {
       req.id = req.params.id;
-      this.order.next(req.id); /// i jos svi ostali podatci coin, value etc
+      const order = {
+        id: req.params.id,
+        from: req.params.from,
+        to: req.params.to,
+        amount: req.params.amount,
+      } as IOrder;
+      this.order.next(order); /// i jos svi ostali podatci coin, value etc
       console.log("CREATING ORDER", req.id);
       next();
     });
   }
+}
+
+export interface IOrder {
+  id: string;
+  from: string;
+  to: string;
+  amount: number;
 }
