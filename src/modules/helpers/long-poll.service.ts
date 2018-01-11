@@ -16,32 +16,35 @@ export class LongPollService {
 
     let pairs = [];
     this.order.delay(1000).subscribe((order: IOrder) => {
-      console.log("RECEIVING ORDER", order);
       pairs.push(order);
       if (pairs && pairs.length >= 2) {
         const orderId = uuidv4().replace(/-/g, "");
 
-        const from = pairs[0].from;
-        const to = pairs[0].to;
-        const address = pairs[0].address;
+        const sideARequest = pairs[0];
+        const sideBRequest = pairs[1];
 
-        const amountA = pairs[0].amount;
-        const amountB = pairs[1].amount;
+        const sideAResponse = {
+          order_id: orderId,
+          side: "a",
+        };
+        const sideBResponse = {
+          order_id: orderId,
+          side: "b",
+          address: sideARequest.address,
+          depositAmount: 0.01, // TODO calculate properly
+          from: sideBRequest.from,
+          to: sideBRequest.to,
+        };
+
 
         pairs.forEach((pair, index) => {
           const side = index === 0 ? "a" : "b";
-          console.log(pair);
-          const response = {
-            order_id: orderId,
-            side,
-            depositAmount: amountA,
-            from,
-            to,
-            receiveAmount: amountB,
-            address
-          } as any;
-          console.log(response);
-          this.lp.publishToId("/order/:id/:from/:to/:amount/:address", pair.id, response);
+
+          if (side === "a") {
+            this.lp.publishToId("/order/:id/:from/:to/:amount/:address", pair.id, sideAResponse);
+          } else {
+            this.lp.publishToId("/order/:id/:from/:to/:amount/:address", pair.id, sideBResponse);
+          }
         });
 
         pairs = [];
