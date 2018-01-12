@@ -5,14 +5,14 @@ import * as https from "https";
 import { Config } from "./config/config";
 import { ApplicationModule } from "./modules/app.module";
 import { LongPollService } from "./modules/helpers/long-poll.service";
-
+import { WsAdapter } from "./modules/adapters/websocketadapter";
 
 async function bootstrap(serveHttps: boolean = false) {
 
   if (serveHttps) {
     const options = {
       key: fs.readFileSync(Config.SSL_KEY_PATH),
-      cert: fs.readFileSync(Config.SSL_CERT_PATH)
+      cert: fs.readFileSync(Config.SSL_CERT_PATH),
     };
 
     const expressApp = require("express")();
@@ -35,6 +35,7 @@ async function bootstrap(serveHttps: boolean = false) {
       next();
     });
     const app = await NestFactory.create(ApplicationModule, expressApp);
+    app.useWebSocketAdapter(new WsAdapter(3001));
 
     LongPollService.getInstance().setExpressInstance(expressApp);
 

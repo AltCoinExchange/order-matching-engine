@@ -5,7 +5,6 @@ import {DataController} from "./controllers/data.controller";
 import {LoggerMiddleware} from "./middleware/logger.middleware";
 import {OrdersController} from "./controllers/orders.controller";
 import {IpBlockerMiddleware} from "./middleware/ipblocker.middleware";
-import {LongPoolingMiddleware} from "./middleware/long-pooling.middleware";
 import {EventsModule} from "./events/events.module";
 
 @Module({
@@ -25,10 +24,5 @@ export class ApplicationModule implements NestModule {
     //   { path: "orders/addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:expiration",
     //     method: RequestMethod.GET },
     // );
-    consumer.apply(LongPoolingMiddleware).forRoutes(
-      // OrdersController,
-      { path: "orders/addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:expiration",
-        method: RequestMethod.GET },
-    );
   }
 }
