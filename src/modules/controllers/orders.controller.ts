@@ -48,8 +48,8 @@ export class OrdersController {
   public async getActiveOrders(): Promise<any> {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
-    return await coll.find({status: "new", expiration: { $gte: now }});
-      // { _id: 1, buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
+    const result = await coll.find({status: "new", expiration: { $gte: now }}).toArray();
+    return result;
   }
 
   @Get("participate:/id:/address")
