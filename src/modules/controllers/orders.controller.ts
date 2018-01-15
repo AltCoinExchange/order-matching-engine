@@ -9,39 +9,56 @@ export class OrdersController {
     return "...Keep on keeping on...";
   }
 
-  @Get("addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:numSwaps/:expiration")
+  @Get("addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount")
   public async addOder(@Param() params): Promise<any> {
     ParamsHelper.filterParams(params);
-    // TODO: Heavy validation
-    const minAmount = parseInt(params.numSwaps);
-    // TODO Get from config
-    if (minAmount <= 0 && minAmount > 10) {
-      return { status: "minAmount should be between 1 and 10" };
-    }
 
+    // TODO: Validation of all parameters
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     params.status = "new";
     params.expiration = new Date(params.expiration);
     params.buyerAddress = "";
-    params.minAmount = parseFloat(params.sellAmount) / minAmount;
-    return await coll.insertOne(params);
+
+    const orderCount = await DbHelper.GetActiveOrdersCount("new", params.address);
+    if (orderCount > 0) {
+      return { status: "You have an already active order!" };
+    }
+
+    const expiration = new Date(Date.now());
+    expiration.setHours(expiration.getHours() + 2);
+
+    const record = {} as any;
+    record.status = "new"; // Statuses: new, pending, broken
+    record.expiration = expiration;
+    record.sellerAddress = params.address;
+    record.sellValue = parseFloat(params.sellAmount);
+    record.currency = params.sellCurrency;
+    record.buyValue = parseFloat(params.buyAmount);
+    record.buyCurrency = params.buyCurrency;
+    record.buyerAddress = "";
+    const result = await coll.insertOne(record).then((id) => {
+      return coll.findOne({_id: id.insertedId});
+    });
+
+    // TODO: Inform WS event
+    return {status: result};
   }
 
   @Get("getActiveOrders")
   public async getActiveOrders(): Promise<any> {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
-    return await coll.find({status: "new", expiration: { $gte: now }},
-      { _id: 1, buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
+    return await coll.find({status: "new", expiration: { $gte: now }});
+      // { _id: 1, buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
   }
 
-  @Get("buyOrder:/id:/address")
-  public async buyOrder(@Param() params): Promise<any> {
+  @Get("participate:/id:/address")
+  public async participate(@Param() params): Promise<any> {
     ParamsHelper.filterParams(params);
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
     const order = await coll.findOneAndUpdate( { _id: params.id, status: "new", expiration: { $gte: now } },
-      { status: "in_progress", buyerAddress: params.address });
+      { status: "pending", buyerAddress: params.address });
     if (order == null) {
       return { status: "Order expired or already fulfilled" };
     } else {

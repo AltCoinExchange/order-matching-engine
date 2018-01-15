@@ -30,11 +30,22 @@ export class DbHelper {
         const all = await coll.deleteMany({});
         const status = await coll.createIndex({status: 1},
           {collation: {locale: "en_US", strength: 2}} as any);
-        const address = await coll.createIndex({address: 1},
+        const sellerAddress = await coll.createIndex({sellerAddress: 1},
+          {collation: {locale: "en_US", strength: 2}} as any);
+        const buyerAddress = await coll.createIndex({buyerAddress: 1},
           {collation: {locale: "en_US", strength: 2}} as any);
         const exipration = await coll.createIndex({expiration: 1});
       }
     }
     return coll;
+  }
+
+  public static async GetActiveOrdersCount(status: string, address?: string): Promise<number> {
+    const coll = await this.GetCollection(Collections.ORDERS);
+    if (address) {
+      const now = new Date(Date.now());
+      return await coll.count({sellerAddress: address.toLowerCase(), status, expiration: {$gte: now}});
+        // { _id: 1, buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
+    }
   }
 }

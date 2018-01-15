@@ -21,7 +21,7 @@ export class ApplicationModule implements NestModule {
     // TODO: Enable in the prod
     // consumer.apply(IpBlockerMiddleware).forRoutes(
     //   // OrdersController,
-    //   { path: "orders/addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:expiration",
+    //   { path: "orders/addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount",
     //     method: RequestMethod.GET },
     // );
   }
