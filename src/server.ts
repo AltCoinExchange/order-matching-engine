@@ -37,7 +37,7 @@ async function bootstrap(serveHttps: boolean = false) {
     const app = await NestFactory.create(ApplicationModule, expressApp);
     // app.useWebSocketAdapter(new WsAdapter(3001));
 
-    LongPollService.getInstance().setExpressInstance(expressApp);
+    await LongPollService.getInstance().setExpressInstance(expressApp);
 
     await app.listen(3000);
     console.log(clicolor.yellow("Order Matching Engine Listening on port: " + 3000));

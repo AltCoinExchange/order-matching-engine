@@ -1,5 +1,6 @@
 import * as Mongoose from "mongoose";
 import { Collection } from "mongoose";
+import {IOrder} from "./long-poll.service";
 
 export enum Collections {
   ORDERS = 1,
@@ -42,10 +43,79 @@ export class DbHelper {
 
   public static async GetActiveOrdersCount(status: string, address?: string): Promise<number> {
     const coll = await this.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
     if (address) {
-      const now = new Date(Date.now());
       return await coll.count({sellerAddress: address.toLowerCase(), status, expiration: {$gte: now}});
-        // { _id: 1, buyCurrency: 1, buyAmount: 1, sellCurrency: 1, sellAmount: 1, expiration: 1, status: 1 });
+    } else {
+      return await coll.count({status, expiration: {$gte: now}});
     }
+  }
+
+  public static async GetOrderWithId(id: string): Promise<IOrder> {
+    const coll = await this.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    if (id) {
+      return await coll.findOne({id, expiration: {$gte: now}});
+    }
+  }
+
+  public static async GetActiveOrders() {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    return await coll.find({status: "new", expiration: { $gte: now }}).toArray();
+  }
+
+  public static async GetMatchedOrders(order: IOrder) {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    return await coll.find({
+      status: "new",
+      buyCurrency: order.sellCurrency,
+      sellCurrency: order.buyCurrency,
+      buyAmount: order.sellAmount,
+      sellAmount: order.buyAmount,
+      expiration: { $gte: now }}).toArray();
+  }
+
+  public static async UpdateOrderStatus(id: string, status: string, buyerAddress: string) {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    const order = await coll.findOneAndUpdate( { id, status: "new", expiration: { $gte: now } },
+      { status, buyerAddress });
+    if (order == null) {
+      return { status: "Order expired or already fulfilled" };
+    } else {
+      return { status: true };
+    }
+  }
+
+  public static async PutOrder(params: IOrder): Promise<any> {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    params.status = "new";
+    params.expiration = new Date(params.expiration);
+    params.buyerAddress = "";
+
+    const orderCount = await DbHelper.GetActiveOrdersCount("new", params.sellerAddress);
+    if (orderCount > 0) {
+      return { status: "You have already active order!" };
+    }
+
+    const expiration = new Date(Date.now());
+    expiration.setHours(expiration.getHours() + 2);
+
+    const record = {} as any;
+    record.id = params.id;
+    record.status = "new"; // Statuses: new, pending, broken
+    record.expiration = expiration;
+    record.sellerAddress = params.sellerAddress;
+    record.buyerAddress = "";
+    record.sellAmount = params.sellAmount;
+    record.sellCurrency = params.sellCurrency;
+    record.buyAmount = params.buyAmount;
+    record.buyCurrency = params.buyCurrency;
+    const result = await coll.insertOne(record).then((id) => {
+      return coll.findOne({_id: id.insertedId});
+    });
+    return result;
   }
 }

@@ -1,6 +1,7 @@
 import {Get, Controller, Param, Post} from "@nestjs/common";
 import {ParamsHelper} from "../helpers/params.helper";
 import {Collections, DbHelper} from "../helpers/db.helper";
+import {IOrder} from "../helpers/long-poll.service";
 
 @Controller("orders")
 export class OrdersController {
@@ -9,47 +10,27 @@ export class OrdersController {
     return "...Keep on keeping on...";
   }
 
-  @Get("addOrder/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount")
+  @Get("addOrder/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount")
   public async addOder(@Param() params): Promise<any> {
     ParamsHelper.filterParams(params);
 
-    // TODO: Validation of all parameters
-    const coll = await DbHelper.GetCollection(Collections.ORDERS);
-    params.status = "new";
-    params.expiration = new Date(params.expiration);
-    params.buyerAddress = "";
+    const order = {
+      id: params.id,
+      sellCurrency: params.sellCurrency,
+      buyCurrency: params.buyCurrency,
+      sellAmount: params.sellAmount,
+      buyAmount: params.buyAmount,
+      sellerAddress: params.address,
+    } as IOrder;
 
-    const orderCount = await DbHelper.GetActiveOrdersCount("new", params.address);
-    if (orderCount > 0) {
-      return { status: "You have an already active order!" };
-    }
-
-    const expiration = new Date(Date.now());
-    expiration.setHours(expiration.getHours() + 2);
-
-    const record = {} as any;
-    record.status = "new"; // Statuses: new, pending, broken
-    record.expiration = expiration;
-    record.sellerAddress = params.address;
-    record.sellValue = parseFloat(params.sellAmount);
-    record.currency = params.sellCurrency;
-    record.buyValue = parseFloat(params.buyAmount);
-    record.buyCurrency = params.buyCurrency;
-    record.buyerAddress = "";
-    const result = await coll.insertOne(record).then((id) => {
-      return coll.findOne({_id: id.insertedId});
-    });
-
+    const result = await DbHelper.PutOrder(order);
     // TODO: Inform WS event
     return {status: result};
   }
 
   @Get("getActiveOrders")
   public async getActiveOrders(): Promise<any> {
-    const coll = await DbHelper.GetCollection(Collections.ORDERS);
-    const now = new Date(Date.now());
-    const result = await coll.find({status: "new", expiration: { $gte: now }}).toArray();
-    return result;
+    return await DbHelper.GetActiveOrders();
   }
 
   @Get("participate:/id:/address")

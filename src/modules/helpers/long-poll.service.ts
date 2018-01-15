@@ -1,6 +1,7 @@
 import * as expressLP from "express-longpoll";
 import "rxjs/add/operator/delay";
 import { Subject } from "rxjs/Subject";
+import {DbHelper} from './db.helper';
 
 const uuidv4 = require("uuid/v4");
 
@@ -14,40 +15,33 @@ export class LongPollService {
       throw new Error("Error - use Singleton.getInstance()");
     }
 
-    let pairs = [];
-    this.order.delay(1000).subscribe((order: IOrder) => {
-      pairs.push(order);
-      if (pairs && pairs.length >= 2) {
-        const orderId = uuidv4().replace(/-/g, "");
+    this.order.delay(1000).subscribe(async (order: IOrder) => {
+      const currentOrders = await DbHelper.GetMatchedOrders(order);
 
-        const sideARequest = pairs[0];
-        const sideBRequest = pairs[1];
+      if (currentOrders.length > 0) {
+        const matchedOrder = currentOrders[0];
 
         const sideAResponse = {
-          order_id: orderId,
+          order_id: order.id,
           side: "a",
         };
         const sideBResponse = {
-          order_id: orderId,
+          order_id: matchedOrder._id,
           side: "b",
-          address: sideARequest.address,
-          depositAmount: 0.01, // TODO calculate properly
-          from: sideBRequest.from,
-          to: sideBRequest.to,
+          address: order.sellerAddress,
+          depositAmount: order.sellAmount,
+          from: matchedOrder.sellerAddress,
+          to: order.sellerAddress,
         };
 
+        await DbHelper.UpdateOrderStatus(order.id, "pending", matchedOrder.sellerAddress);
+        await DbHelper.UpdateOrderStatus(matchedOrder.id, "pending", order.sellerAddress);
 
-        pairs.forEach((pair, index) => {
-          const side = index === 0 ? "a" : "b";
+        this.lp.publishToId("/order/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount",
+              order.id, sideAResponse);
 
-          if (side === "a") {
-            this.lp.publishToId("/order/:id/:from/:to/:amount/:address", pair.id, sideAResponse);
-          } else {
-            this.lp.publishToId("/order/:id/:from/:to/:amount/:address", pair.id, sideBResponse);
-          }
-        });
-
-        pairs = [];
+        this.lp.publishToId("/order/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount",
+              matchedOrder.id, sideBResponse);
       }
     });
   }
@@ -57,19 +51,27 @@ export class LongPollService {
     return LongPollService.instance;
   }
 
-  public setExpressInstance(expressApp) {
+  public async setExpressInstance(expressApp) {
     this.lp = expressLP(expressApp);
-    this.lp.create("/order/:id/:from/:to/:amount/:address", (req, res, next) => {
-      req.id = req.params.id;
+    this.lp.create("/order/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount", async (req, res, next) => {
+      const id = req.params.id;
       const order = {
-        id: req.params.id,
-        from: req.params.from,
-        to: req.params.to,
-        amount: req.params.amount,
-        address: req.params.address
+        id,
+        sellCurrency: req.params.sellCurrency,
+        buyCurrency: req.params.buyCurrency,
+        sellAmount: req.params.sellAmount,
+        buyAmount: req.params.buyAmount,
+        sellerAddress: req.params.address,
+        status: "new",
       } as IOrder;
-      this.order.next(order); /// i jos svi ostali podatci coin, value etc
-      console.log("CREATING ORDER", req.id);
+
+      let dbOrder = await DbHelper.GetOrderWithId(id);
+      if (!dbOrder) {
+        dbOrder = await DbHelper.PutOrder(order);
+      }
+
+      this.order.next(dbOrder);
+      console.log("CREATING ORDER", dbOrder.id);
       next();
     });
   }
@@ -77,8 +79,12 @@ export class LongPollService {
 
 export interface IOrder {
   id: string;
-  from: string;
-  to: string;
-  address: string;
-  amount: string;
+  sellCurrency: string;
+  buyCurrency: string;
+  status: string;
+  buyerAddress: string;
+  sellerAddress: string;
+  sellAmount: number;
+  buyAmount: number;
+  expiration?: Date;
 }
