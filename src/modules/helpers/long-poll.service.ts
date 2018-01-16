@@ -1,7 +1,7 @@
 import * as expressLP from "express-longpoll";
 import "rxjs/add/operator/delay";
 import { Subject } from "rxjs/Subject";
-import {DbHelper} from './db.helper';
+import {DbHelper} from "./db.helper";
 
 const uuidv4 = require("uuid/v4");
 

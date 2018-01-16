@@ -1,6 +1,7 @@
 import * as Mongoose from "mongoose";
 import { Collection } from "mongoose";
 import {IOrder} from "./long-poll.service";
+import {ParamsHelper} from "./params.helper";
 
 export enum Collections {
   ORDERS = 1,
@@ -81,7 +82,7 @@ export class DbHelper {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
     const order = await coll.findOneAndUpdate( { id, status: "new", expiration: { $gte: now } },
-      { status, buyerAddress });
+      { $set: { status, buyerAddress }});
     if (order == null) {
       return { status: "Order expired or already fulfilled" };
     } else {
@@ -90,6 +91,7 @@ export class DbHelper {
   }
 
   public static async PutOrder(params: IOrder): Promise<any> {
+    ParamsHelper.filterParams(params);
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     params.status = "new";
     params.expiration = new Date(params.expiration);
