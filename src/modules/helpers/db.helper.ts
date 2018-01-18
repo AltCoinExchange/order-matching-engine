@@ -91,7 +91,7 @@ export class DbHelper {
   }
 
   public static async PutOrder(params: IOrder): Promise<any> {
-    ParamsHelper.filterParams(params);
+    // ParamsHelper.filterParams(params);
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     params.status = "new";
     params.expiration = new Date(params.expiration);
