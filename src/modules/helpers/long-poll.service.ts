@@ -53,7 +53,7 @@ export class LongPollService {
 
   public async setExpressInstance(expressApp) {
     this.lp = expressLP(expressApp);
-    this.lp.create("/order/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount", async (req, res, next) => {
+    this.lp.create("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount", async (req, res, next) => {
       const id = req.params.id;
       const order = {
         id,

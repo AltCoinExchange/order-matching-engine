@@ -2,6 +2,7 @@ import {Get, Controller, Param, Post} from "@nestjs/common";
 import {ParamsHelper} from "../helpers/params.helper";
 import {Collections, DbHelper} from "../helpers/db.helper";
 import {IOrder} from "../helpers/long-poll.service";
+import {IActiveorder} from "../interfaces/activeorder";
 
 @Controller("orders")
 export class OrdersController {
@@ -30,7 +31,13 @@ export class OrdersController {
 
   @Get("getActiveOrders")
   public async getActiveOrders(): Promise<any> {
-    return await DbHelper.GetActiveOrders();
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    return await coll.aggregate([
+        { $match : { status: "new", expiration: { $gte: now }}},
+        { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
+            fromAmount: "$sellAmount", toAmount: "$buyAmount"}},
+      ]).toArray();
   }
 
   @Get("participate:/id:/address")
