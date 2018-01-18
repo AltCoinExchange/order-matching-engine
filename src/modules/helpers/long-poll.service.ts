@@ -37,10 +37,10 @@ export class LongPollService {
         await DbHelper.UpdateOrderStatus(order.id, "pending", matchedOrder.sellerAddress);
         await DbHelper.UpdateOrderStatus(matchedOrder.id, "pending", order.sellerAddress);
 
-        this.lp.publishToId("/order/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount",
+        this.lp.publishToId("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount",
               order.id, sideAResponse);
 
-        this.lp.publishToId("/order/:id/:address/:sellCurrency/:sellAmount/:buyCurrency/:buyAmount",
+        this.lp.publishToId("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount",
               matchedOrder.id, sideBResponse);
       }
     });
