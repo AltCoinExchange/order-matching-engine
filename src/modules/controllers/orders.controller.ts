@@ -36,7 +36,7 @@ export class OrdersController {
     return await coll.aggregate([
         { $match : { status: "new", expiration: { $gte: now }}},
         { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
-            fromAmount: "$sellAmount", toAmount: "$buyAmount"}},
+            fromAmount: "$sellAmount", toAmount: "$buyAmount", address: "$sellerAddress"}},
       ]).toArray();
   }
 

@@ -55,6 +55,7 @@ export class LongPollService {
     this.lp = expressLP(expressApp);
     this.lp.create("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount", async (req, res, next) => {
       const id = req.params.id;
+      req.id = id; // Long pool ID
       const order = {
         id,
         sellCurrency: req.params.sellCurrency,
