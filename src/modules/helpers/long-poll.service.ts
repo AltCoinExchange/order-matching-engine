@@ -22,7 +22,7 @@ export class LongPollService {
         const matchedOrder = currentOrders[0];
 
         const sideAResponse = {
-          order_id: order.id,
+          order_id: matchedOrder.id,
           side: "a",
         };
         const sideBResponse = {
@@ -30,18 +30,20 @@ export class LongPollService {
           side: "b",
           address: order.sellerAddress,
           depositAmount: order.sellAmount,
-          from: matchedOrder.sellerAddress,
-          to: order.sellerAddress,
+          from: order.sellCurrency,
+          to: order.buyCurrency,
+          // from: matchedOrder.sellerAddress,
+          // to: order.sellerAddress,
         };
 
         await DbHelper.UpdateOrderStatus(order.id, "pending", matchedOrder.sellerAddress);
         await DbHelper.UpdateOrderStatus(matchedOrder.id, "pending", order.sellerAddress);
 
         this.lp.publishToId("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount",
-              order.id, sideAResponse);
+              matchedOrder.id, sideAResponse);
 
         this.lp.publishToId("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount",
-              matchedOrder.id, sideBResponse);
+              order.id, sideBResponse);
       }
     });
   }
