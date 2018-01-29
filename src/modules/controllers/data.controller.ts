@@ -21,11 +21,23 @@ export class DataController {
     const to = await coll.findOne({ "transactions.to" : params.address });
 
     if (from !== null) {
-      transactions.from = from.transactions;
+      transactions.from = [];
+      for (const i in from.transactions) {
+        if (from.transactions[i].from === params.address) {
+          from.transactions[i].timestamp = from.timestamp;
+          transactions.from.push(from.transactions[i]);
+        }
+      }
     }
 
     if (to !== null) {
-      transactions.to = to.transactions;
+      transactions.to = [];
+      for (const i in to.transactions) {
+        if (to.transactions[i].to === params.address) {
+          to.transactions[i].timestamp = to.timestamp;
+          transactions.from.push(to.transactions[i]);
+        }
+      }
     }
 
     return transactions;
