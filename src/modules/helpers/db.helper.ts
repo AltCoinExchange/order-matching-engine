@@ -97,10 +97,10 @@ export class DbHelper {
     params.expiration = new Date(params.expiration);
     params.buyerAddress = "";
 
-    const orderCount = await DbHelper.GetActiveOrdersCount("new", params.sellerAddress);
-    if (orderCount > 0) {
-      return { status: "You have already active order!" };
-    }
+    // const orderCount = await DbHelper.GetActiveOrdersCount("new", params.sellerAddress);
+    // if (orderCount > 0) {
+    //   return { status: "You have already active order!" };
+    // }
 
     const expiration = new Date(Date.now());
     expiration.setHours(expiration.getHours() + 2);
