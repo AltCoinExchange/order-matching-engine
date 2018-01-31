@@ -11,7 +11,7 @@ import "rxjs/add/operator/map";
 import {Collections, DbHelper} from "../helpers/db.helper";
 
 @WebSocketGateway({ namespace: "orders" })
-export class EventsGateway {
+export class OrdersGateway {
   @WebSocketServer() public server;
 
   @SubscribeMessage("addOrder")
@@ -37,5 +37,20 @@ export class EventsGateway {
     record.buyerAddress = "";
     const result = await coll.insertOne(record);
     return Observable.from(response).map((res) => ({ event, data: res }));
+  }
+
+  @SubscribeMessage("getActiveOrders")
+  public async onActiveOrdersEvent(client, data): Promise<Observable<WsResponse<any>>> {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    const response = [];
+    const orders = await coll.aggregate([
+      { $match : { status: "new", expiration: { $gte: now }}},
+      { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
+          fromAmount: "$sellAmount", toAmount: "$buyAmount", address: "$sellerAddress"}},
+    ]).toArray();
+
+    response.push(orders);
+    return Observable.from(response);
   }
 }

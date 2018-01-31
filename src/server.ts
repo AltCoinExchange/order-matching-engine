@@ -42,7 +42,7 @@ async function bootstrap(serveHttps: boolean = false) {
     });
 
     const app = await NestFactory.create(ApplicationModule, expressApp);
-    // app.useWebSocketAdapter(new WsAdapter(3001));
+    app.useWebSocketAdapter(new WsAdapter(3002));
 
     await LongPollService.getInstance().setExpressInstance(expressApp);
 
