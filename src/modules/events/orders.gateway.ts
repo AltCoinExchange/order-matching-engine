@@ -51,6 +51,7 @@ export class OrdersGateway {
     ]).toArray();
 
     response.push(orders);
+    await coll.conn.close();
     return Observable.from(response);
   }
 }
