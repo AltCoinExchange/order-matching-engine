@@ -33,11 +33,13 @@ export class OrdersController {
   public async getActiveOrders(): Promise<any> {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
-    return await coll.aggregate([
+    const result = coll.aggregate([
         { $match : { status: "new", expiration: { $gte: now }}},
         { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
             fromAmount: "$sellAmount", toAmount: "$buyAmount", address: "$sellerAddress"}},
       ]).toArray();
+    await coll.conn.close();
+    return result;
   }
 
   @Get("participate:/id:/address")

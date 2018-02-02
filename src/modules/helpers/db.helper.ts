@@ -56,7 +56,9 @@ export class DbHelper {
     const coll = await this.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
     if (id) {
-      return await coll.findOne({id, expiration: {$gte: now}});
+      const result = await coll.findOne({id, expiration: {$gte: now}});
+      await coll.conn.close();
+      return result;
     }
   }
 
@@ -69,13 +71,15 @@ export class DbHelper {
   public static async GetMatchedOrders(order: IOrder) {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
-    return await coll.find({
+    const result = await coll.find({
       status: "new",
       buyCurrency: order.sellCurrency,
       sellCurrency: order.buyCurrency,
       buyAmount: order.sellAmount,
       sellAmount: order.buyAmount,
       expiration: { $gte: now }}).toArray();
+    await coll.conn.close();
+    return result;
   }
 
   public static async UpdateOrderStatus(id: string, status: string, buyerAddress: string) {
@@ -83,6 +87,7 @@ export class DbHelper {
     const now = new Date(Date.now());
     const order = await coll.findOneAndUpdate( { id, status: "new", expiration: { $gte: now } },
       { $set: { status, buyerAddress }});
+    await coll.conn.close();
     if (order == null) {
       return { status: "Order expired or already fulfilled" };
     } else {
@@ -118,6 +123,7 @@ export class DbHelper {
     const result = await coll.insertOne(record).then((id) => {
       return coll.findOne({_id: id.insertedId});
     });
+    await coll.conn.close();
     return result;
   }
 }
