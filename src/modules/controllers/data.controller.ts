@@ -48,6 +48,7 @@ export class DataController {
       }
     }
 
+    await coll.conn.close();
     return transactions;
   }
 }
