@@ -37,6 +37,7 @@ export class DbHelper {
         const buyerAddress = await coll.createIndex({buyerAddress: 1},
           {collation: {locale: "en_US", strength: 2}} as any);
         const exipration = await coll.createIndex({expiration: 1});
+        const wsId = await coll.createIndex({wsId: 1});
       }
     }
     return coll;
@@ -95,6 +96,32 @@ export class DbHelper {
     }
   }
 
+  public static async UpdateOrderClientId(id: string, wsId: number) {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    const order = await coll.findOneAndUpdate({id, status: "new", expiration: {$gte: now}},
+      {$set: {wsId}});
+    await coll.conn.close();
+    if (order == null) {
+      return {status: "Order expired or already fulfilled"};
+    } else {
+      return {status: true};
+    }
+  }
+
+  public static async UpdateDisconnectedOrder(wsId: number) {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    const order = await coll.findOneAndUpdate({wsId, status: "new", expiration: {$gte: now}},
+      {$set: {status: "disconnected"}});
+    await coll.conn.close();
+    if (order == null) {
+      return {status: "Order expired or already fulfilled"};
+    } else {
+      return {status: true};
+    }
+  }
+
   public static async PutOrder(params: IOrder): Promise<any> {
     // ParamsHelper.filterParams(params);
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
@@ -116,6 +143,7 @@ export class DbHelper {
     record.expiration = expiration;
     record.sellerAddress = params.sellerAddress;
     record.buyerAddress = "";
+    record.wsId = params.wsId;
     record.sellAmount = params.sellAmount;
     record.sellCurrency = params.sellCurrency;
     record.buyAmount = params.buyAmount;

@@ -2,6 +2,7 @@ import * as expressLP from "express-longpoll";
 import "rxjs/add/operator/delay";
 import { Subject } from "rxjs/Subject";
 import {DbHelper} from "./db.helper";
+import {WsAdapter} from "../adapters/websocketadapter";
 
 const uuidv4 = require("uuid/v4");
 
@@ -9,6 +10,7 @@ export class LongPollService {
   private static instance;
   private order: Subject<IOrder> = new Subject<IOrder>();
   private lp;
+  private wsAdapter: WsAdapter;
 
   constructor() {
     if (LongPollService.instance) {
@@ -39,6 +41,9 @@ export class LongPollService {
         await DbHelper.UpdateOrderStatus(order.id, "pending", matchedOrder.sellerAddress);
         await DbHelper.UpdateOrderStatus(matchedOrder.id, "pending", order.sellerAddress);
 
+        // Broadcast message to all clients
+        this.wsAdapter.broadcast("getActiveOrders");
+
         this.lp.publishToId("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount",
               matchedOrder.id, sideAResponse);
 
@@ -53,7 +58,8 @@ export class LongPollService {
     return LongPollService.instance;
   }
 
-  public async setExpressInstance(expressApp) {
+  public async setExpressInstance(expressApp, wsAdapter) {
+    this.wsAdapter = wsAdapter;
     this.lp = expressLP(expressApp);
     this.lp.create("/order/:id/:address/:sellCurrency/:buyCurrency/:sellAmount/:buyAmount", async (req, res, next) => {
       const id = req.params.id;
@@ -73,6 +79,9 @@ export class LongPollService {
         dbOrder = await DbHelper.PutOrder(order);
       }
 
+      // Broadcast message to all clients
+      this.wsAdapter.broadcast("getActiveOrders");
+
       this.order.next(dbOrder);
       console.log("CREATING ORDER", dbOrder.id);
       next();
@@ -90,4 +99,5 @@ export interface IOrder {
   sellAmount: number;
   buyAmount: number;
   expiration?: Date;
+  wsId: number;
 }
