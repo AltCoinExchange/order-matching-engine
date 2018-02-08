@@ -139,4 +139,23 @@ export class OrdersGateway {
     await coll.conn.close();
     return Observable.of(responseObj);
   }
+
+  @SubscribeMessage("getLatestOrders")
+  public async onLatestOrdersEvent(client, data): Promise<Observable<WsResponse<any>>> {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const responseObj = {} as any;
+    responseObj.data = [];
+    responseObj.message = "getLatestOrders";
+
+    const orders = await coll.aggregate([
+      { $sort : { expiration: 1 }},
+      { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
+          fromAmount: "$sellAmount", toAmount: "$buyAmount" }},
+    ]).toArray();
+
+    responseObj.data = orders;
+
+    await coll.conn.close();
+    return Observable.of(responseObj);
+  }
 }
