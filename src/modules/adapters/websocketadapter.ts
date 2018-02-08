@@ -68,6 +68,7 @@ export class WsAdapter implements WebSocketAdapter {
       this.clientBindings.delete(client);
       // TODO: Handle active orders for disconnected clients and set order status
       await DbHelper.UpdateDisconnectedOrder(client._ultron.id);
+      await this.broadcast("getActiveOrders");
       console.log("Disconnected");
       callback(e);
     });
