@@ -1,21 +1,21 @@
 import {FeederService} from "./common/FeederService";
-import {EthEngine} from "../wallet/src/eth";
 import {EthConfiguration} from "./config/eth";
 import "core-js/es6/reflect";
 import "core-js/es7/reflect";
 import "reflect-metadata";
 import * as Mongoose from "mongoose";
 import {Collection} from "mongoose";
+import {EthScanner} from "./common/eth-scanner";
 
 export class EthFeeder extends FeederService {
-  public ethEngine: EthEngine;
+  public ethEngine: EthScanner;
   private currentBlockNumber: number = 0;
   private lastBlockNumber: number = 0;
   private collection: Collection;
 
   constructor(blockNum?) {
     super();
-    this.ethEngine = new EthEngine(null, EthConfiguration.hosts[0], null);
+    this.ethEngine = new EthScanner(null, EthConfiguration.hosts[0], null);
     this.startService(blockNum);
   }
 
