@@ -2,28 +2,21 @@ import {ServiceBase} from "./common/ServiceBase";
 import * as Wallet from "../wallet";
 import * as Mongoose from "mongoose";
 import {Collection} from "mongoose";
-const WebSocketClient = require("websocket").client;
+import {OrderMatchingClient} from "./common/clients/OrderMatchingClient";
+import {Bot} from "./tradingengine/Bot";
 
 export class OrderService extends ServiceBase {
   // public ethEngine: EthEngine;
   private collection: Collection;
-  private client: any;
+  private bot: Bot;
 
   constructor() {
     super();
-    // this.ethEngine = new EthEngine(null, EthConfiguration.hosts[0], null);
-    this.startService();
-    this.client = new WebSocketClient();
-    this.client.on("connectFailed", this.onConnectFailed);
-    this.client.connect("ws://localhost:3002");
-
-  }
-
-  private onConnectFailed(error) {
-    console.log(error);
+    this.bot = new Bot();
   }
 
   public async WatchForChanges() {
+    await this.bot.Start();
   }
 
   // public async createDb(init: boolean = true): Promise<Collection> {
