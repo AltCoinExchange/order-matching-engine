@@ -67,6 +67,7 @@
     "augur.js": "^4.7.0-18",
     "axios": "^0.17.1",
     "bip39": "git+https://github.com/AltCoinExchange/bip39.git",
+    "bitcoinjs-lib": "^3.3.2",
     "bitcore": "^4.1.1",
     "bitcore-mnemonic": "git+https://github.com/AltCoinExchange/bitcore-mnemonic.git",
     "clone": "^2.1.1",

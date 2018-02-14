@@ -1,6 +1,6 @@
 /* tslint:disable */
 // TODO: Find solution for test to include reflect-metadata, otherwise for build is not needed
-// import "reflect-metadata";
+import "reflect-metadata";
 export module AbiUtil {
 
   export enum AbiType {

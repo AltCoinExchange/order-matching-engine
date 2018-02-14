@@ -34,7 +34,9 @@ export class WsAdapter implements WebSocketAdapter {
         const event = v.find((x) => x.message === func);
         Observable.fromPromise(event.callback(k, params) as any).subscribe((result: any) => {
           try {
-            k.send(JSON.stringify(result.value));
+            if (result.value) {
+              k.send(JSON.stringify(result.value));
+            }
           } catch (e) {
             console.log("fljuus: ", e);
           }

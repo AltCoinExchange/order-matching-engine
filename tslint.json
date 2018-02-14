@@ -10,6 +10,7 @@
         "no-console": false,
         "no-require-imports": false,
         "no-var-requires": false,
-        "forin": false
+        "forin": false,
+        "max-line-length": [500]
     }
 }

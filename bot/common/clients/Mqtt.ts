@@ -6,6 +6,7 @@ import {InitiateData, InitiateParams} from "../../../wallet/src/atomic-swap";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
+import {AppConfig} from "../../config/app";
 
 const INITIATE = "/inititate/";
 const PARTICIPATE = "PARTICIPATE";
@@ -17,7 +18,7 @@ export class MoscaService {
   public messages: Subject<any> = new Subject();
 
   constructor() {
-    this.client = mqtt.connect("wss://swap.altcoin.io:3001/");
+    this.client = mqtt.connect(AppConfig.mqtt);
     this.client.on("message", (topic, message) => {
       this.messages.next({topic, message: message.toString()});
     });
@@ -75,5 +76,4 @@ export class MoscaService {
   private onMessage(topic) {
     return this.messages.filter((data) => data.topic === topic);
   }
-
 }

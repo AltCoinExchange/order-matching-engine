@@ -1,22 +1,17 @@
 import {ServiceBase} from "./common/ServiceBase";
-import * as Wallet from "../wallet";
-import * as Mongoose from "mongoose";
-import {Collection} from "mongoose";
-import {OrderMatchingClient} from "./common/clients/OrderMatchingClient";
+// import * as Wallet from "../wallet";
+// import * as Mongoose from "mongoose";
+// import {Collection} from "mongoose";
 import {Bot} from "./tradingengine/Bot";
 
 export class OrderService extends ServiceBase {
   // public ethEngine: EthEngine;
-  private collection: Collection;
+  // private collection: Collection;
   private bot: Bot;
 
   constructor() {
     super();
     this.bot = new Bot();
-  }
-
-  public async WatchForChanges() {
-    await this.bot.Start();
   }
 
   // public async createDb(init: boolean = true): Promise<Collection> {
@@ -39,13 +34,14 @@ export class OrderService extends ServiceBase {
   // }
 
   public async startService() {
-    await this.WatchForChanges();
+    await this.bot.Start();
   }
 }
 
 async function bootstrap() {
   // const args = process.argv.slice(2);
   const orderService = new OrderService();
+  await orderService.startService();
 }
 
 bootstrap();
