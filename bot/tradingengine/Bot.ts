@@ -77,18 +77,25 @@ export class Bot {
    * @param data
    */
   private initiateOrder(wallet: IWallet, data) {
-    // const result = await wallet.Initiate(data.address, data.depositAmount);
-    wallet.Initiate(data.address, data.depositAmount).subscribe((initData) => {
-      console.log("BOT: initiated");
-      //  Map order to inform initiate
-      const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
-      initData.address = walletAddress;
-      this.mqtt.informInitiate(data, initData).subscribe((informed) => {
-        this.mqtt.waitForParticipate(data).subscribe((response) => {
-          this.redeemOrder(wallet, initData, data);
-        });
+    try {
+      wallet.Initiate(data.address, data.depositAmount).subscribe((initData) => {
+        if (!(initData as any).message) {
+          console.log("BOT: initiated");
+          //  Map order to inform initiate
+          const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
+          initData.address = walletAddress;
+          this.mqtt.informInitiate(data, initData).subscribe((informed) => {
+            this.mqtt.waitForParticipate(data).subscribe((response) => {
+              this.redeemOrder(wallet, initData, data);
+            });
+          });
+        } else {
+          console.log("Initiate failed: ", initData);
+        }
       });
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   /**

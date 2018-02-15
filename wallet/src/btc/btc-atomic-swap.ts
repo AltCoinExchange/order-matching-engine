@@ -61,10 +61,14 @@ export class BtcAtomicSwap extends BtcTransaction implements IAtomicSwap {
             return new BtcInitiateData(b.contractFee, b.contractP2SH.toString(), b.contract.toHex(), b.contractTx.hash,
                 b.contractTx.toString(), rawTx, secret.secret, secret.secretHash);
         } catch (e) {
-            // tslint:disable-next-line
-            console.log("ERROR INVOKING INITIATE: ", params, e);
-            await this.wait(this.retryTimeout);
-            return await this.initiate(params);
+            if (e.message.indexOf("Transaction amount is too small!") === -1) {
+              // tslint:disable-next-line
+              console.log("ERROR INVOKING INITIATE: ", params, e);
+              await this.wait(this.retryTimeout);
+              return await this.initiate(params);
+            } else {
+                return e;
+            }
         }
     }
 
@@ -84,10 +88,14 @@ export class BtcAtomicSwap extends BtcTransaction implements IAtomicSwap {
             return new BtcParticipateData(b.contractFee, b.contractP2SH.toString(),
                 b.contract.toHex(), b.contractTx.hash, b.contractTx.toString(), rawTx);
         } catch (e) {
+          if (e.message.indexOf("Transaction amount is too small!") === -1) {
             // tslint:disable-next-line
             console.log("ERROR INVOKING PARTICIPATE: ", params, e);
             await this.wait(this.retryTimeout);
             return await this.participate(params);
+          } else {
+              return e;
+          }
         }
     }
 
