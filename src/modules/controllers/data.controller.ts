@@ -23,27 +23,31 @@ export class DataController {
     const transactions = {} as any;
     // TODO: Probably this should occur at engine to not pass : into parameters
     params.address = params.address.slice(1).toLowerCase();
-    const from = await coll.findOne({ "transactions.from" : params.address });
-    const to = await coll.findOne({ "transactions.to" : params.address });
+    const from = await coll.find({ "transactions.from" : params.address }).toArray();
+    const to = await coll.find({ "transactions.to" : params.address }).toArray();
 
     if (from !== null) {
       transactions.from = [];
-      for (const i in from.transactions) {
-        if (from.transactions[i].from === params.address) {
-          from.transactions[i].timestamp = from.timestamp;
-          from.transactions[i].confirmations = blockNumber - from.transactions[i].blockNumber;
-          transactions.from.push(from.transactions[i]);
+      for (const t in from) {
+        for (const i in from[t].transactions) {
+          if (from[t].transactions[i].from === params.address) {
+            from[t].transactions[i].timestamp = from[t].timestamp;
+            from[t].transactions[i].confirmations = blockNumber - from[t].transactions[i].blockNumber;
+            transactions.from.push(from[t].transactions[i]);
+          }
         }
       }
     }
 
     if (to !== null) {
       transactions.to = [];
-      for (const i in to.transactions) {
-        if (to.transactions[i].to === params.address) {
-          to.transactions[i].timestamp = to.timestamp;
-          to.transactions[i].confirmations = blockNumber - to.transactions[i].blockNumber;
-          transactions.from.push(to.transactions[i]);
+      for (const t in to) {
+        for (const i in to[t].transactions) {
+          if (to[t].transactions[i].to === params.address) {
+            to[t].transactions[i].timestamp = to[t].timestamp;
+            to[t].transactions[i].confirmations = blockNumber - to[t].transactions[i].blockNumber;
+            transactions.from.push(to[t].transactions[i]);
+          }
         }
       }
     }
