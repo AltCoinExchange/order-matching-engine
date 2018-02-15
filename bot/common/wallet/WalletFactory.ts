@@ -6,6 +6,7 @@ import {
 import {BtcWallet} from "./BtcWallet";
 import {EthWallet} from "./EthWallet";
 import {EthTokenWallet} from "./EthTokenWallet";
+import {AppConfig} from "../../config/app";
 
 export enum Coins {
   BTC,
@@ -93,22 +94,28 @@ export interface IWallet {
   Redeem(data: RedeemData): Observable<RedeemData>;
 
   ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData>;
+
+  getAddress(wif?);
 }
 
 export class WalletFactory {
-  public static createWalletFromString(coin: string, btcprivkey: string) {
-    return this.createWallet(Coins[coin], btcprivkey);
+  public static createWalletFromString(coin: string) {
+    return this.createWallet(Coins[coin]);
   }
-  public static createWallet(coin: Coins, btcprivkey: string): IWallet {
+  public static createWallet(coin: Coins): IWallet {
     switch (coin) {
       case Coins.BTC: {
-        return new BtcWallet(btcprivkey);
+        return new BtcWallet(AppConfig.wif);
       }
       case Coins.ETH: {
-        const ethCoinModel = new EthWallet(btcprivkey);
-        const keystore = ethCoinModel.recover(btcprivkey);
-        ethCoinModel.login(keystore);
-        return ethCoinModel;
+        try {
+          const ethCoinModel = new EthWallet(AppConfig.ethKey);
+          const keystore = ethCoinModel.recover(AppConfig.ethKey);
+          ethCoinModel.login(keystore);
+          return ethCoinModel;
+        } catch (e) {
+          console.log("Cannot initiate ETH wallet.", e);
+        }
       }
       case Coins.SNT:
       case Coins.DNT:
@@ -179,14 +186,14 @@ export class WalletFactory {
           }
         }
 
-        const ethCoinModel = new EthTokenWallet(btcprivkey, token);
-        const keystore = ethCoinModel.recover(btcprivkey);
+        const ethCoinModel = new EthTokenWallet(AppConfig.ethKey, token);
+        const keystore = ethCoinModel.recover(AppConfig.ethKey);
         ethCoinModel.login(keystore);
         return ethCoinModel;
       }
       default: {
-        const ethCoinModel = new EthWallet(btcprivkey);
-        const keystore = ethCoinModel.recover(btcprivkey);
+        const ethCoinModel = new EthWallet(AppConfig.ethKey);
+        const keystore = ethCoinModel.recover(AppConfig.ethKey);
         ethCoinModel.login(keystore);
         return ethCoinModel;
       }

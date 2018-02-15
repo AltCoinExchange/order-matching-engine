@@ -8,6 +8,10 @@ export class EthereumWallet extends EthAtomicSwap {
     super(net);
   }
 
+  public getAddress() {
+    return "0x" + this.walletAddress;
+  }
+
   public login(keystore) {
     const acc = this.engine.login(keystore);
     if (acc.address.length > 2) {

@@ -32,15 +32,17 @@ export class WsAdapter implements WebSocketAdapter {
       // Check if socket is active
       if (k.readyState === 1) {
         const event = v.find((x) => x.message === func);
-        Observable.fromPromise(event.callback(k, params) as any).subscribe((result: any) => {
-          try {
-            if (result.value) {
-              k.send(JSON.stringify(result.value));
+        if (event) {
+          Observable.fromPromise(event.callback(k, params) as any).subscribe((result: any) => {
+            try {
+              if (result) {
+                k.send(JSON.stringify(result.value));
+              }
+            } catch (e) {
+              console.log("fljuus: ", e);
             }
-          } catch (e) {
-            console.log("fljuus: ", e);
-          }
-        });
+          });
+        }
       }
     });
   }

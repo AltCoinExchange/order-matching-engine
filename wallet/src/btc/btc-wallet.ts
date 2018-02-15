@@ -26,6 +26,10 @@ export class BitcoinWallet extends BtcAtomicSwap {
         }
     }
 
+    public getAddress(wif?) {
+        return this.generateAddressFromWif(wif);
+    }
+
     get hdPrivateKey(): any {
         return this.hierarchicalPrivateKey;
     }

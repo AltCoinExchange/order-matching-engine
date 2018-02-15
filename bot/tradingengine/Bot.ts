@@ -41,7 +41,7 @@ export class Bot {
     this.orderMatchingClient.OrderMatchSubscribe().subscribe(async (matchedOrder) => {
       // TODO: check if we sent the order
       if (matchedOrder.side === "b") {
-        const wallet = WalletFactory.createWalletFromString(matchedOrder.from, AppConfig.wif);
+        const wallet = WalletFactory.createWalletFromString(matchedOrder.from);
         await this.initiateOrder(wallet, matchedOrder);
       }
     });
@@ -52,6 +52,8 @@ export class Bot {
    * @param data
    */
   private createOrder(data) {
+
+    const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
     const uniqueId = uuidv4().replace(/-/g, "");
     const order = {
       id: uniqueId,
@@ -60,7 +62,7 @@ export class Bot {
       buyCurrency: data.from,
       sellAmount: data.toAmount,
       buyAmount: data.fromAmount,
-      sellerAddress: data.address,
+      sellerAddress: walletAddress,
       status: "new",
     } as IOrder;
 
@@ -78,6 +80,9 @@ export class Bot {
     // const result = await wallet.Initiate(data.address, data.depositAmount);
     wallet.Initiate(data.address, data.depositAmount).subscribe((initData) => {
       console.log("BOT: initiated");
+      //  Map order to inform initiate
+      const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
+      initData.address = walletAddress;
       this.mqtt.informInitiate(data, initData).subscribe((informed) => {
         this.mqtt.waitForParticipate(data).subscribe((response) => {
           this.redeemOrder(wallet, initData, data);
@@ -93,7 +98,7 @@ export class Bot {
    * @param link
    * @returns {Promise<void>}
    */
-  private async redeemOrder(wallet: IWallet, data, link) {
+  private redeemOrder(wallet: IWallet, data, link) {
     wallet.Redeem(new RedeemData(data.secret, data.secretHash,
       data.contractHex, data.contractTxHex)).subscribe((redeemData) => {
       this.mqtt.informBRedeem(link, redeemData).subscribe((redeemed) => {
