@@ -12,6 +12,7 @@
     "start:prod": "node dist/server.js"
   },
   "dependencies": {
+    "altcoinio-wallet": "git+git@github.com:AltCoinExchange/altcoinio-wallet.git",
     "@nestjs/common": "~4.5.9",
     "@nestjs/core": "~4.5.10",
     "@nestjs/microservices": "~4.5.8",

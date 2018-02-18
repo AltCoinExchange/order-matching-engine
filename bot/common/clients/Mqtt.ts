@@ -2,7 +2,7 @@ import {isString} from "util";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import * as mqtt from "mqtt";
-import {InitiateData, InitiateParams} from "../../../wallet/src/atomic-swap";
+import {InitiateData, InitiateParams} from "altcoinio-wallet";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";

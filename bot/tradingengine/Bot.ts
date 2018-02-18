@@ -3,7 +3,7 @@ import {MoscaService} from "../common/clients/Mqtt";
 import {IOrder} from "../../src/modules/helpers/long-poll.service";
 import {IWallet, WalletFactory} from "../common/wallet/WalletFactory";
 import {AppConfig} from "../config/app";
-import {RedeemData} from "../../wallet/src/atomic-swap";
+import {RedeemData} from "altcoinio-wallet";
 const uuidv4 = require("uuid/v4");
 
 /**

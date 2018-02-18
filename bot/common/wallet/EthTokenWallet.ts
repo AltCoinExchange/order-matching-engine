@@ -1,13 +1,11 @@
-import {EthereumWallet, TokenAtomicSwap} from "../../../wallet/src/eth";
+import {EthereumWallet, TokenAtomicSwap} from "altcoinio-wallet";
 import {IWallet} from "./WalletFactory";
-import {TokenFactory, TOKENS} from "../../../wallet/src/eth-tokens";
+import {TokenFactory, TOKENS} from "altcoinio-wallet";
 import {Observable} from "rxjs/Observable";
 import {
   ExtractSecretData, ExtractSecretParams, InitiateData, ParticipateData,
-  RedeemData,
-} from "../../../wallet/src/atomic-swap";
-import {BtcExtractSecretParams} from "../../../wallet/src/btc/atomic-swap";
-import {EthInitiateParams, EthParticipateParams, EthRedeemParams} from "../../../wallet/src/eth/atomic-swap";
+  RedeemData, BtcExtractSecretParams, EthInitiateParams, EthParticipateParams, EthRedeemParams,
+} from "altcoinio-wallet";
 
 export class EthTokenWallet extends EthereumWallet implements IWallet {
   private readonly timeout: number = 7200;
@@ -26,9 +24,9 @@ export class EthTokenWallet extends EthereumWallet implements IWallet {
     return Observable.fromPromise(token.initiate(initParams));
   }
 
-  public ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData> {
-    return Observable.fromPromise(super.extractSecret(new BtcExtractSecretParams(data.secretHash, data.contractTx)));
-  }
+  // public ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData> {
+  //   return Observable.fromPromise(super.extractSecret(new BtcExtractSecretParams(data.secretHash, data.contractTx)));
+  // }
 
   public Participate(data: InitiateData, amount: number): Observable<ParticipateData> {
     // tslint:disable-next-line

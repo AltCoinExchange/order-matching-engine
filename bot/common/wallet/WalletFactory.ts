@@ -2,7 +2,7 @@ import {Observable} from "rxjs/Observable";
 import {
   ExtractSecretData, ExtractSecretParams, InitiateData, ParticipateData,
   RedeemData,
-} from "../../../wallet/src/atomic-swap";
+} from "altcoinio-wallet";
 import {BtcWallet} from "./BtcWallet";
 import {EthWallet} from "./EthWallet";
 import {EthTokenWallet} from "./EthTokenWallet";
@@ -93,7 +93,7 @@ export interface IWallet {
 
   Redeem(data: RedeemData): Observable<RedeemData>;
 
-  ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData>;
+  // ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData>;
 
   getAddress(wif?);
 }

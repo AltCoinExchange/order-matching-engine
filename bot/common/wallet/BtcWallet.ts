@@ -1,14 +1,14 @@
 import {IWallet} from "./WalletFactory";
-import {BitcoinWallet} from "../../../wallet/src/btc";
+import {BitcoinWallet} from "altcoinio-wallet";
 import {
   ExtractSecretData, ExtractSecretParams, InitiateData, ParticipateData,
   RedeemData,
-} from "../../../wallet/src/atomic-swap";
+} from "altcoinio-wallet";
 import {Observable} from "rxjs/Observable";
 import {
   BtcExtractSecretParams, BtcInitiateParams, BtcParticipateParams,
   BtcRedeemParams,
-} from "../../../wallet/src/btc/atomic-swap";
+} from "altcoinio-wallet";
 import "rxjs/add/observable/fromPromise";
 
 export class BtcWallet extends BitcoinWallet implements IWallet {
@@ -41,9 +41,9 @@ export class BtcWallet extends BitcoinWallet implements IWallet {
     );
   }
 
-  public ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData> {
-    return Observable.fromPromise(super.extractSecret(new BtcExtractSecretParams(data.secretHash, data.contractTx)));
-  }
+  // public ExtractSecret(data: ExtractSecretParams): Observable<ExtractSecretData> {
+  //   return Observable.fromPromise(super.extractSecret(new BtcExtractSecretParams(data.secretHash, data.contractTx)));
+  // }
 
   public Redeem(data: RedeemData): Observable<RedeemData> {
     const redeemParams = this.getRedeemParams(this.unoxify(data.secret),
