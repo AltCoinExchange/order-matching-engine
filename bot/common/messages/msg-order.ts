@@ -10,8 +10,8 @@ export interface MsgOrderData {
 }
 
 export class MsgOrder implements MsgBase {
-  type: string = "setOrder";
-  data: MsgOrderData;
+  public type: string = "setOrder";
+  public data: MsgOrderData;
 
   public constructor(id: string, address: string, from: string, to: string, fromAmount: number, toAmount: number) {
     this.data = {} as MsgOrderData;
@@ -23,7 +23,7 @@ export class MsgOrder implements MsgBase {
     this.data.toAmount = toAmount;
   }
 
-  public toJson() : string {
+  public toJson(): string {
     return JSON.stringify(this);
   }
 }

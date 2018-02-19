@@ -11,6 +11,7 @@ export class OrderMatchingClient {
   private client: any;
   private dataSubject = new ReplaySubject<any[]>();
   private matchedSubject = new ReplaySubject<any>();
+  private faucetSubject = new ReplaySubject<any>();
   private id: number;
   private static instance: OrderMatchingClient;
 
@@ -36,6 +37,10 @@ export class OrderMatchingClient {
     return this.matchedSubject.asObservable();
   }
 
+  public FaucetSubscribe(): Observable<any> {
+    return this.faucetSubject.asObservable();
+  }
+
   public SendOrder(order: IOrder) {
     const newOrder = new MsgOrder(order.id, order.sellerAddress, order.sellCurrency,
       order.buyCurrency, order.sellAmount, order.buyAmount).toJson();
@@ -49,6 +54,8 @@ export class OrderMatchingClient {
       OrderMatchingClient.GetInstance().dataSubject.next(jsonMsg.data);
     } else if (jsonMsg.message === "matchOrder") {
       OrderMatchingClient.GetInstance().matchedSubject.next(jsonMsg.data);
+    } else if (jsonMsg.message === "faucet") {
+      OrderMatchingClient.GetInstance().faucetSubject.next(jsonMsg.data);
     }
   }
 

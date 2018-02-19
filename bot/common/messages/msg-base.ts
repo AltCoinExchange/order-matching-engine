@@ -1,4 +1,4 @@
 export class MsgBase {
-  type: string;
-  data: any;
+  public type: string;
+  public data: any;
 }

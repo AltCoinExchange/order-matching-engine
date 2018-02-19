@@ -45,6 +45,11 @@ export class Bot {
         await this.initiateOrder(wallet, matchedOrder);
       }
     });
+
+    // Get matched order and initiate swap
+    this.orderMatchingClient.FaucetSubscribe().subscribe(async (faucetOrder) => {
+      // TODO: check if we have already filled that address
+    });
   }
 
   /**

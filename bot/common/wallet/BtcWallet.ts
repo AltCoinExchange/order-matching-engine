@@ -1,14 +1,10 @@
 import {IWallet} from "./WalletFactory";
-import {BitcoinWallet} from "altcoinio-wallet";
 import {
   ExtractSecretData, ExtractSecretParams, InitiateData, ParticipateData,
-  RedeemData,
+  RedeemData, BtcExtractSecretParams, BtcInitiateParams, BtcParticipateParams,
+  BtcRedeemParams, BitcoinWallet,
 } from "altcoinio-wallet";
 import {Observable} from "rxjs/Observable";
-import {
-  BtcExtractSecretParams, BtcInitiateParams, BtcParticipateParams,
-  BtcRedeemParams,
-} from "altcoinio-wallet";
 import "rxjs/add/observable/fromPromise";
 
 export class BtcWallet extends BitcoinWallet implements IWallet {
