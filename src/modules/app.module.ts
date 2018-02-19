@@ -6,10 +6,11 @@ import {LoggerMiddleware} from "./middleware/logger.middleware";
 import {OrdersController} from "./controllers/orders.controller";
 import {IpBlockerMiddleware} from "./middleware/ipblocker.middleware";
 import {EventsModule} from "./events/events.module";
+import { FaucetController } from "./controllers/faucet.controller";
 
 @Module({
   modules: [EventsModule],
-  controllers: [AppController, RatesController, DataController, OrdersController],
+  controllers: [AppController, RatesController, DataController, OrdersController, FaucetController],
   components: [],
 })
 
