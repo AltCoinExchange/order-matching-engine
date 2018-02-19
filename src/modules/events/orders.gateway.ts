@@ -148,7 +148,7 @@ export class OrdersGateway {
     responseObj.message = "getLatestOrders";
 
     const orders = await coll.aggregate([
-      { $sort : { expiration: 1 }},
+      { $sort : { expiration: -1 }},
       { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
           fromAmount: "$sellAmount", toAmount: "$buyAmount" }},
     ]).toArray();
