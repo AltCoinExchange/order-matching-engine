@@ -90,8 +90,8 @@ export class OrdersGateway {
           side: "b",
           address: order.sellerAddress,
           depositAmount: order.sellAmount,
-          from: order.buyCurrency,
-          to: order.sellCurrency,
+          from: order.sellCurrency,
+          to: order.buyCurrency,
         },
       };
 
