@@ -33,7 +33,7 @@ export class Bot {
         const availableOrder = this.orders.find( (e) => e.id === order.id);
         if (!availableOrder) {
           if (BotConfig.forbiddenTokensBuy.indexOf(order.from) === -1 &&
-              BotConfig.forbiddenTokensSell.indexOf(order.to)) {
+              BotConfig.forbiddenTokensSell.indexOf(order.to) === -1) {
             this.orders.push(order);
             this.createOrder(order);
           }
