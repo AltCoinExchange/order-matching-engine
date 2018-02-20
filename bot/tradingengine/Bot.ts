@@ -4,6 +4,7 @@ import {IOrder} from "../../src/modules/helpers/long-poll.service";
 import {IWallet, WalletFactory} from "../common/wallet/WalletFactory";
 import {AppConfig} from "../config/app";
 import {RedeemData} from "altcoinio-wallet";
+import {BotConfig} from "../config/bot";
 const uuidv4 = require("uuid/v4");
 
 /**
@@ -31,8 +32,11 @@ export class Bot {
       for (const order of orders) {
         const availableOrder = this.orders.find( (e) => e.id === order.id);
         if (!availableOrder) {
-          this.orders.push(order);
-          this.createOrder(order);
+          if (BotConfig.forbiddenTokensBuy.indexOf(order.from) === -1 &&
+              BotConfig.forbiddenTokensSell.indexOf(order.to)) {
+            this.orders.push(order);
+            this.createOrder(order);
+          }
         }
       }
     });
