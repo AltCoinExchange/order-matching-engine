@@ -98,8 +98,10 @@ export class OrdersGateway {
       await DbHelper.UpdateOrderStatus(order.id, "pending", matchedOrder.sellerAddress);
       await DbHelper.UpdateOrderStatus(matchedOrder.id, "pending", order.sellerAddress);
 
-      adapter.broadcastMessage(sideAResponse);
-      adapter.broadcastMessage(sideBResponse);
+      // adapter.broadcastMessage(sideAResponse);
+      adapter.broadcastClientMessage(sideAResponse, matchedOrder.wsId);
+      adapter.broadcastClientMessage(sideBResponse, order.wsId);
+      // adapter.broadcastMessage(sideBResponse);
     }
 
     adapter.broadcast("getActiveOrders");

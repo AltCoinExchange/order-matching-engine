@@ -60,6 +60,19 @@ export class WsAdapter implements WebSocketAdapter {
     });
   }
 
+  public broadcastClientMessage(params, clientId) {
+    this.clientBindings.forEach((v, k) => {
+      // Check if socket is active
+      if (k.readyState === 1 && k._ultron.id === clientId) {
+        try {
+          k.send(JSON.stringify(params));
+        } catch (e) {
+          console.log("fljuus: ", e);
+        }
+      }
+    });
+  }
+
   public bindClientConnect(server, callback: (...args: any[]) => void) {
     server.on("connection", (e) => {
       callback(e);
