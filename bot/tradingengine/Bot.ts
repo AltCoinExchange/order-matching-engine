@@ -6,6 +6,7 @@ import {AppConfig} from "../config/app";
 import {RedeemData} from "altcoinio-wallet";
 import {BotConfig} from "../config/bot";
 const uuidv4 = require("uuid/v4");
+import "rxjs/add/operator/sampleTime";
 
 /**
  * Automatic trading bot
@@ -27,8 +28,9 @@ export class Bot {
    * @returns {Promise<void>}
    */
   public async Start() {
+    console.log("START");
     // Get active orders if any and process the first one
-    this.orderMatchingClient.OrderSubscribe().subscribe((orders) => {
+    this.orderMatchingClient.OrderSubscribe().sampleTime(30000 /*ms*/).subscribe((orders) => {
       for (const order of orders) {
         const availableOrder = this.orders.find( (e) => e.id === order.id);
         if (!availableOrder) {
