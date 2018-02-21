@@ -60,6 +60,19 @@ export class WsAdapter implements WebSocketAdapter {
     });
   }
 
+  public broadcastClientMessage(params, clientId) {
+    this.clientBindings.forEach((v, k) => {
+      // Check if socket is active
+      if (k.readyState === 1 && k._ultron.id === clientId) {
+        try {
+          k.send(JSON.stringify(params));
+        } catch (e) {
+          console.log("fljuus: ", e);
+        }
+      }
+    });
+  }
+
   public bindClientConnect(server, callback: (...args: any[]) => void) {
     server.on("connection", (e) => {
       callback(e);
@@ -69,12 +82,16 @@ export class WsAdapter implements WebSocketAdapter {
   public bindClientDisconnect(client, callback: (...args: any[]) => void) {
     client.on("close", async (e) => {
       // const closingWs = this.clientBindings.get(client);
-      this.clientBindings.delete(client);
-      // TODO: Handle active orders for disconnected clients and set order status
-      await DbHelper.UpdateDisconnectedOrder(client._ultron.id);
-      await this.broadcast("getActiveOrders");
-      console.log("Disconnected");
-      callback(e);
+      try {
+        this.clientBindings.delete(client);
+        // TODO: Handle active orders for disconnected clients and set order status
+        await DbHelper.UpdateDisconnectedOrder(client._ultron.id);
+        await this.broadcast("getActiveOrders");
+        console.log("Disconnected");
+        callback(e);
+      } catch (e) {
+        console.log("Error cleaning up disconnection");
+      }
     });
   }
 
