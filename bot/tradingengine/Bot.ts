@@ -94,10 +94,11 @@ export class Bot {
           console.log("BOT: initiated");
           //  Map order to inform initiate
           const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
+          const walletRedeem = WalletFactory.createWalletFromString(data.to);
           initData.address = walletAddress;
           this.mqtt.informInitiate(data, initData).subscribe((informed) => {
             this.mqtt.waitForParticipate(data).subscribe((response) => {
-              this.redeemOrder(wallet, initData, data);
+              this.redeemOrder(walletRedeem, initData, data);
             });
           });
         } else {
