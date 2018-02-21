@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as https from "https";
 import { Config } from "./config/config";
 import { ApplicationModule } from "./modules/app.module";
-import { LongPollService } from "./modules/helpers/long-poll.service";
+// import { LongPollService } from "./modules/helpers/long-poll.service";
 import { WsAdapter } from "./modules/adapters/websocketadapter";
 
 declare var process: {
@@ -45,7 +45,7 @@ async function bootstrap(serveHttps: boolean = false) {
     const wsAdapter = new WsAdapter(3002);
     app.useWebSocketAdapter(wsAdapter);
 
-    await LongPollService.getInstance().setExpressInstance(expressApp, wsAdapter);
+    // await LongPollService.getInstance().setExpressInstance(expressApp, wsAdapter);
 
     await app.listen(3000);
     console.log(clicolor.yellow("Order Matching Engine Listening on port: " + 3000));

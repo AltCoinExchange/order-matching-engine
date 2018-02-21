@@ -82,12 +82,16 @@ export class WsAdapter implements WebSocketAdapter {
   public bindClientDisconnect(client, callback: (...args: any[]) => void) {
     client.on("close", async (e) => {
       // const closingWs = this.clientBindings.get(client);
-      this.clientBindings.delete(client);
-      // TODO: Handle active orders for disconnected clients and set order status
-      await DbHelper.UpdateDisconnectedOrder(client._ultron.id);
-      await this.broadcast("getActiveOrders");
-      console.log("Disconnected");
-      callback(e);
+      try {
+        this.clientBindings.delete(client);
+        // TODO: Handle active orders for disconnected clients and set order status
+        await DbHelper.UpdateDisconnectedOrder(client._ultron.id);
+        await this.broadcast("getActiveOrders");
+        console.log("Disconnected");
+        callback(e);
+      } catch (e) {
+        console.log("Error cleaning up disconnection");
+      }
     });
   }
 

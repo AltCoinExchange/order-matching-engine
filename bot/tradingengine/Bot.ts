@@ -7,6 +7,8 @@ import {RedeemData} from "altcoinio-wallet";
 import {BotConfig} from "../config/bot";
 const uuidv4 = require("uuid/v4");
 import "rxjs/add/operator/sampleTime";
+import "rxjs/add/operator/catch";
+import {Observable} from "rxjs/Observable";
 
 /**
  * Automatic trading bot
@@ -118,8 +120,11 @@ export class Bot {
    * @returns {Promise<void>}
    */
   private redeemOrder(wallet: IWallet, data, link) {
-    wallet.Redeem(new RedeemData(data.secret, data.secretHash,
-      data.contractHex, data.contractTxHex)).subscribe((redeemData) => {
+    return wallet.Redeem(new RedeemData(data.secret, data.secretHash,
+      data.contractHex, data.contractTxHex)).catch((ex) => {
+        console.log("Redeem error", ex);
+        return this.redeemOrder(wallet, data, link);
+    }).subscribe((redeemData) => {
       this.mqtt.informBRedeem(link, redeemData).subscribe((redeemed) => {
         console.log("Redeemed successfully.");
       });
