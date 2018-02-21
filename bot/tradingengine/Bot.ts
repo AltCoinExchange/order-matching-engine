@@ -112,8 +112,10 @@ export class Bot {
         const walletRedeem = WalletFactory.createWalletFromString(data.to);
         (initData as any).address = walletAddress;
         this.mqtt.informInitiate(data, initData).subscribe((informed) => {
-          this.mqtt.waitForParticipate(data).subscribe((response) => {
+          this.mqtt.waitForParticipate(data).timeout(920000).subscribe((response) => {
             this.redeemOrder(walletRedeem, initData, data);
+          }).catch((err) => {
+            this.throttle.next(1);
           });
         });
       } else {
