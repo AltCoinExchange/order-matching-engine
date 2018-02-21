@@ -39,6 +39,9 @@ export class Bot {
     // Get active orders if any and process the first one
     this.throttle.subscribe((val) => {
       const unsub = this.orderMatchingClient.OrderSubscribe().subscribe((orders) => {
+        if (this.orders.length > 0) {
+          this.orders = [];
+        }
         for (const order of orders) {
           const availableOrder = this.orders.find( (e) => e.id === order.id);
           if (!availableOrder) {
