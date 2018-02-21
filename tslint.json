@@ -6,6 +6,7 @@
         "quotemark": true,
         "max-classes-per-file": [7],
         "radix": false,
+        "trailing-comma": false,
         "member-ordering": false,
         "no-console": false,
         "no-require-imports": false,
