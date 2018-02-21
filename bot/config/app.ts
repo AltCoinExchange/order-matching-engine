@@ -1,5 +1,8 @@
 export const AppConfig = {
   wif: "cRhgz3Wp2fNQg5SzUabnuTD37LWMgJhT5JDvjfMLwnHbLVxYwGvR",
+  faucetWif: "cUrTRkrhAQVGLoFwUFUxiispXvi6mAWpYDdmcEjYUvdBB19yEp48",
+  faucetAddress: "0xb43364FeC39AB5542D17aF1CF5F608976941a6a0",
+  faucetSeed: "tprv8ZgxMBicQKsPeBEEFeuodTRk2JGhqMCV9k8iUtqGLxX5j6q9wxwaRd6rPbDxMTynNnWJfa8YXQEFGayEBUutv9c4gaK1BCZX2KQg9wznPDy",
   ethKey: "tprv8ZgxMBicQKsPdL6csat7jz9J7sqkFnkFFMLdE4E1o69EPw5KQ5MNuWa1TaxfpvarcKTAWVNsSYLmhu7NUjiokboQMrc7UBGGKwdUSbXWxE2",
   ethKey2: "tprv8ZgxMBicQKsPdL6csat7jz9J7sqkFnkFFMLdE4E1o69EPw5KQ5MNuWa1TaxfpvarcKTAWVNsSYLmhu7NUjiokboQMrc7UBGGKwdUSbXWxE2",
   ethKey3: "tprv8ZgxMBicQKsPdL6csat7jz9J7sqkFnkFFMLdE4E1o69EPw5KQ5MNuWa1TaxfpvarcKTAWVNsSYLmhu7NUjiokboQMrc7UBGGKwdUSbXWxE2",

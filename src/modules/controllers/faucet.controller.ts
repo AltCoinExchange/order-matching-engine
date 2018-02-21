@@ -7,7 +7,7 @@ import { AppConfig } from "../../../bot/config/app";
 export class FaucetController {
   @Get("fund/:address")
   public async faucet(@Param() params): Promise<any> {
-    const walletAddress = WalletFactory.createWalletFromString("ETH").getAddress(AppConfig.wif);
+    const walletAddress = AppConfig.faucetAddress;
     const ethWallet = new EthereumWallet("testnet");
     return ethWallet.getbalance(walletAddress).then((result) => {
       if (result < 10) {
@@ -18,7 +18,7 @@ export class FaucetController {
         if (addressBalance > 0) {
           return {err: "Address already has funds!"};
         }
-        const acc = ethWallet.recover(AppConfig.ethKey);
+        const acc = ethWallet.recover(AppConfig.faucetSeed);
         ethWallet.login(acc);
         return ethWallet.sendEther(params.address, "0.02");
       });
