@@ -1,4 +1,4 @@
 export const BotConfig = {
-  forbiddenTokensBuy: [],
+  forbiddenTokensBuy: ["BTC"],
   forbiddenTokensSell: ["ETH", "BTC"],
 };
