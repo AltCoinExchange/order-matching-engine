@@ -8,7 +8,10 @@ import {BotConfig} from "../config/bot";
 const uuidv4 = require("uuid/v4");
 import "rxjs/add/operator/sampleTime";
 import "rxjs/add/operator/catch";
+import "rxjs/add/operator/takeLast";
 import {Observable} from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 /**
  * Automatic trading bot
@@ -17,6 +20,8 @@ export class Bot {
 
   private orderMatchingClient: OrderMatchingClient;
   private mqtt: MoscaService;
+
+  private throttle: BehaviorSubject<any> = new BehaviorSubject<any>(1);
 
   private orders: any[] = [];
 
@@ -32,17 +37,20 @@ export class Bot {
   public async Start() {
     console.log("START");
     // Get active orders if any and process the first one
-    this.orderMatchingClient.OrderSubscribe().sampleTime(30000 /*ms*/).subscribe((orders) => {
-      for (const order of orders) {
-        const availableOrder = this.orders.find( (e) => e.id === order.id);
-        if (!availableOrder) {
-          if (BotConfig.forbiddenTokensBuy.indexOf(order.from) === -1 &&
+    this.throttle.subscribe((val) => {
+      const unsub = this.orderMatchingClient.OrderSubscribe().subscribe((orders) => {
+        for (const order of orders) {
+          const availableOrder = this.orders.find( (e) => e.id === order.id);
+          if (!availableOrder) {
+            if (BotConfig.forbiddenTokensBuy.indexOf(order.from) === -1 &&
               BotConfig.forbiddenTokensSell.indexOf(order.to) === -1) {
-            this.orders.push(order);
-            this.createOrder(order);
+              this.orders.push(order);
+              this.createOrder(order);
+              unsub.unsubscribe();
+            }
           }
         }
-      }
+      });
     });
 
     // Get matched order and initiate swap
@@ -90,26 +98,25 @@ export class Bot {
    * @param data
    */
   private initiateOrder(wallet: IWallet, data) {
-    try {
-      wallet.Initiate(data.address, data.depositAmount).subscribe((initData) => {
-        if (!(initData as any).message) {
-          console.log("BOT: initiated");
-          //  Map order to inform initiate
-          const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
-          const walletRedeem = WalletFactory.createWalletFromString(data.to);
-          initData.address = walletAddress;
-          this.mqtt.informInitiate(data, initData).subscribe((informed) => {
-            this.mqtt.waitForParticipate(data).subscribe((response) => {
-              this.redeemOrder(walletRedeem, initData, data);
-            });
+    return wallet.Initiate(data.address, data.depositAmount).catch((e) => {
+      console.log("Initiate error", e);
+      return this.initiateOrder(wallet, data);
+    }).subscribe((initData) => {
+      if (!(initData as any).message) {
+        console.log("BOT: initiated");
+        //  Map order to inform initiate
+        const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
+        const walletRedeem = WalletFactory.createWalletFromString(data.to);
+        (initData as any).address = walletAddress;
+        this.mqtt.informInitiate(data, initData).subscribe((informed) => {
+          this.mqtt.waitForParticipate(data).subscribe((response) => {
+            this.redeemOrder(walletRedeem, initData, data);
           });
-        } else {
-          console.log("Initiate failed: ", initData);
-        }
-      });
-    } catch (e) {
-      console.log(e);
-    }
+        });
+      } else {
+        console.log("Initiate failed: ", initData);
+      }
+    });
   }
 
   /**
@@ -127,6 +134,7 @@ export class Bot {
     }).subscribe((redeemData) => {
       this.mqtt.informBRedeem(link, redeemData).subscribe((redeemed) => {
         console.log("Redeemed successfully.");
+        this.throttle.next(1);
       });
     });
   }
