@@ -1,12 +1,9 @@
-import {Observable} from "rxjs/Observable";
-import {
-  ExtractSecretData, ExtractSecretParams, InitiateData, ParticipateData,
-  RedeemData,
-} from "altcoinio-wallet";
-import {BtcWallet} from "./BtcWallet";
-import {EthWallet} from "./EthWallet";
-import {EthTokenWallet} from "./EthTokenWallet";
-import {AppConfig} from "../../config/app";
+import { InitiateData, ParticipateData, RedeemData } from "altcoinio-wallet";
+import { Observable } from "rxjs/Observable";
+import { AppConfig } from "../../config/app";
+import { BtcWallet } from "./BtcWallet";
+import { EthTokenWallet } from "./EthTokenWallet";
+import { EthWallet } from "./EthWallet";
 
 export enum Coins {
   BTC,
@@ -82,6 +79,7 @@ export abstract class Coin {
   public faucetLoading: boolean = false;
   public $amountUSD: Observable<number>;
   public walletRecord: IWalletRecord;
+
   public abstract update(coin: Coin): Coin;
 
 }

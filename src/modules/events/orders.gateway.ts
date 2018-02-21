@@ -1,19 +1,13 @@
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  WsResponse,
-  WebSocketServer,
-  WsException,
-} from "@nestjs/websockets";
-import { Observable } from "rxjs/Observable";
+import { SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from "@nestjs/websockets";
 import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/map";
-import {Collections, DbHelper} from "../helpers/db.helper";
-import {IOrder} from "../helpers/long-poll.service";
-import {WsAdapter} from "../adapters/websocketadapter";
+import { Observable } from "rxjs/Observable";
+import { WsAdapter } from "../adapters/websocketadapter";
+import { Collections, DbHelper } from "../helpers/db.helper";
+import { IOrder } from "../helpers/long-poll.service";
 
-@WebSocketGateway({ namespace: "orders" })
+@WebSocketGateway({namespace: "orders"})
 export class OrdersGateway {
   @WebSocketServer() public server;
 
@@ -39,7 +33,82 @@ export class OrdersGateway {
     record.buyCurrency = data.buyCurrency;
     record.buyerAddress = "";
     const result = await coll.insertOne(record);
-    return Observable.from(response).map((res) => ({ event, data: res }));
+    return Observable.from(response).map((res) => ({event, data: res}));
+  }
+
+  @SubscribeMessage("setOrder")
+  public async onSetOrder(client, data): Promise<Observable<WsResponse<any>>> {
+    const responseObj = {} as any;
+    responseObj.message = "setOrder";
+
+    // Add order
+    const order = await this.addOrder(client, data.msg.data);
+
+    // Find match for order and broadcast message
+    await this.matchOrder(data.wsAdapter, order);
+
+    responseObj.data = order;
+    return Observable.of(responseObj);
+  }
+
+  @SubscribeMessage("getActiveOrders")
+  public async onActiveOrdersEvent(client, data): Promise<Observable<WsResponse<any>>> {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const now = new Date(Date.now());
+    const responseObj = {} as any;
+    responseObj.data = [];
+    responseObj.message = "getActiveOrders";
+
+    const orders = await coll.aggregate([
+      {$match: {status: "new", expiration: {$gte: now}}},
+      {
+        $project: {
+          id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
+          fromAmount: "$sellAmount", toAmount: "$buyAmount", address: "$sellerAddress"
+        }
+      }
+    ]).toArray();
+
+    responseObj.data = orders;
+
+    await coll.conn.close();
+    return Observable.of(responseObj);
+  }
+
+  @SubscribeMessage("getLatestOrders")
+  public async onLatestOrdersEvent(client, data): Promise<Observable<WsResponse<any>>> {
+    const coll = await DbHelper.GetCollection(Collections.ORDERS);
+    const responseObj = {} as any;
+    responseObj.data = [];
+    responseObj.message = "getLatestOrders";
+
+    const orders = await coll.aggregate([
+      {$sort: {expiration: -1}},
+      {$limit: data.limit ? data.limit : 40},
+      {
+        $project: {
+          id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
+          fromAmount: "$sellAmount", toAmount: "$buyAmount",
+        }
+      }
+    ]).toArray();
+
+    const orderFiltered = [];
+
+    orders.forEach((order) => {
+      const hasCounterOffer = orderFiltered.find((or) => {
+        return or.fromAmount === order.toAmount;
+      });
+
+      if (!hasCounterOffer) {
+        orderFiltered.push(order);
+      }
+    });
+
+    responseObj.data = orderFiltered.splice(0, 20);
+
+    await coll.conn.close();
+    return Observable.of(responseObj);
   }
 
   private async addOrder(client, data): Promise<IOrder> {
@@ -51,7 +120,7 @@ export class OrdersGateway {
       sellAmount: data.fromAmount,
       buyAmount: data.toAmount,
       sellerAddress: data.address,
-      status: "new",
+      status: "new"
     } as IOrder;
 
     let dbOrder = await DbHelper.GetOrderWithId(data.id);
@@ -79,8 +148,8 @@ export class OrdersGateway {
         data: {
           id: matchedOrder.id,
           order_id: matchedOrder.id,
-          side: "a",
-        },
+          side: "a"
+        }
       };
       const sideBResponse = {
         message: "matchOrder",
@@ -91,8 +160,8 @@ export class OrdersGateway {
           address: order.sellerAddress,
           depositAmount: order.sellAmount,
           from: order.sellCurrency,
-          to: order.buyCurrency,
-        },
+          to: order.buyCurrency
+        }
       };
 
       await DbHelper.UpdateOrderStatus(order.id, "pending", matchedOrder.sellerAddress);
@@ -103,59 +172,5 @@ export class OrdersGateway {
     }
 
     adapter.broadcast("getActiveOrders");
-  }
-
-  @SubscribeMessage("setOrder")
-  public async onSetOrder(client, data): Promise<Observable<WsResponse<any>>> {
-    const responseObj = {} as any;
-    responseObj.message = "setOrder";
-
-    // Add order
-    const order = await this.addOrder(client, data.msg.data);
-
-    // Find match for order and broadcast message
-    await this.matchOrder(data.wsAdapter, order);
-
-    responseObj.data = order;
-    return Observable.of(responseObj);
-  }
-
-  @SubscribeMessage("getActiveOrders")
-  public async onActiveOrdersEvent(client, data): Promise<Observable<WsResponse<any>>> {
-    const coll = await DbHelper.GetCollection(Collections.ORDERS);
-    const now = new Date(Date.now());
-    const responseObj = {} as any;
-    responseObj.data = [];
-    responseObj.message = "getActiveOrders";
-
-    const orders = await coll.aggregate([
-      { $match : { status: "new", expiration: { $gte: now }}},
-      { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
-          fromAmount: "$sellAmount", toAmount: "$buyAmount", address: "$sellerAddress"}},
-    ]).toArray();
-
-    responseObj.data = orders;
-
-    await coll.conn.close();
-    return Observable.of(responseObj);
-  }
-
-  @SubscribeMessage("getLatestOrders")
-  public async onLatestOrdersEvent(client, data): Promise<Observable<WsResponse<any>>> {
-    const coll = await DbHelper.GetCollection(Collections.ORDERS);
-    const responseObj = {} as any;
-    responseObj.data = [];
-    responseObj.message = "getLatestOrders";
-
-    const orders = await coll.aggregate([
-      { $sort : { expiration: -1 }},
-      { $project: { id: 1, expiration: 1, from: "$sellCurrency", to: "$buyCurrency",
-          fromAmount: "$sellAmount", toAmount: "$buyAmount" }},
-    ]).toArray();
-
-    responseObj.data = orders;
-
-    await coll.conn.close();
-    return Observable.of(responseObj);
   }
 }

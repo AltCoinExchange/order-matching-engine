@@ -97,7 +97,9 @@ export class Bot {
           initData.address = walletAddress;
           this.mqtt.informInitiate(data, initData).subscribe((informed) => {
             this.mqtt.waitForParticipate(data).subscribe((response) => {
-              this.redeemOrder(wallet, initData, data);
+              this.redeemOrder(wallet, initData, data).subscribe((redeemDone) => {
+
+              });
             });
           });
         } else {
@@ -117,11 +119,9 @@ export class Bot {
    * @returns {Promise<void>}
    */
   private redeemOrder(wallet: IWallet, data, link) {
-    wallet.Redeem(new RedeemData(data.secret, data.secretHash,
-      data.contractHex, data.contractTxHex)).subscribe((redeemData) => {
-      this.mqtt.informBRedeem(link, redeemData).subscribe((redeemed) => {
-        console.log("Redeemed successfully.");
-      });
+    return wallet.Redeem(new RedeemData(data.secret, data.secretHash,
+      data.contractHex, data.contractTxHex)).map((redeemData) => {
+        return this.mqtt.informBRedeem(link, redeemData);
     });
   }
 }
