@@ -9,6 +9,7 @@ const uuidv4 = require("uuid/v4");
 import "rxjs/add/operator/sampleTime";
 import "rxjs/add/operator/catch";
 import "rxjs/add/operator/takeLast";
+import "rxjs/add/operator/timeout";
 import {Observable} from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
@@ -112,10 +113,11 @@ export class Bot {
         const walletRedeem = WalletFactory.createWalletFromString(data.to);
         (initData as any).address = walletAddress;
         this.mqtt.informInitiate(data, initData).subscribe((informed) => {
-          this.mqtt.waitForParticipate(data).timeout(920000).subscribe((response) => {
-            this.redeemOrder(walletRedeem, initData, data);
-          }).catch((err) => {
+          this.mqtt.waitForParticipate(data).timeout(920000).catch((err) => {
             this.throttle.next(1);
+            return Observable.empty();
+          }).subscribe((response) => {
+            this.redeemOrder(walletRedeem, initData, data);
           });
         });
       } else {
