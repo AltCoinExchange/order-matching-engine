@@ -140,7 +140,7 @@ export class Bot {
         }
       });
     } else {
-      return Observable.empty();
+      return this.retSuccess();
     }
   }
 
