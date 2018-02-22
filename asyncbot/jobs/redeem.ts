@@ -5,6 +5,7 @@ import {AsyncBotDb} from "../common/asyncbotdb";
 import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {RedeemData} from "altcoinio-wallet";
 import "rxjs/add/operator/catch";
+import {QueueMessages} from '../common/queuemessages';
 const Queue = require("bee-queue");
 
 export class Redeem implements IJob {
@@ -13,9 +14,13 @@ export class Redeem implements IJob {
   private mqtt: MoscaService;
 
   constructor() {
-    this.queue = new Queue("bot-redeem");
-    this.informRedeem = new Queue("bot-inform-redeem");
+    this.queue = new Queue("bot-redeem", {removeOnSuccess: true, removeOnFailure: true});
+    this.informRedeem = new Queue("bot-inform-redeem", {removeOnSuccess: true, removeOnFailure: true});
     this.mqtt = new MoscaService();
+  }
+
+  public GetQueues(): any[] {
+    return [this.queue, this.informRedeem];
   }
 
   public Start() {
@@ -32,25 +37,26 @@ export class Redeem implements IJob {
    */
   private async redeem(data) {
     if (AsyncBotDb.isOrderActive(data.data)) {
-      const wallet = WalletFactory.createWalletFromString(data.data.to);
-      wallet.Redeem(new RedeemData(data.initData.secret, data.initData.secretHash,
-        data.initData.contractHex, data.initData.contractTxHex)).catch((e) => {
-        // console.log("Initiate error", e);
-        // if (e.toString().indexOf("Error: Returned error: replacement transaction underpriced") !== -1) {
-        //   const newWallet = WalletFactory.createWalletFromString(data.from);
-        // }
-        throw e;
-        // return Observable.empty();
-      }).subscribe(async (response) => {
-        data.redeemData = response;
-        const waitJob = this.informRedeem.createJob(data);
-        waitJob.save().then((job) => {
-          console.log(job);
+      return new Promise((resolve, reject) => {
+        const wallet = WalletFactory.createWalletFromString(data.data.to);
+        wallet.Redeem(new RedeemData(data.initData.secret, data.initData.secretHash,
+          data.initData.contractHex, data.initData.contractTxHex)).catch((e) => {
+          // console.log("Initiate error", e);
+          // if (e.toString().indexOf("Error: Returned error: replacement transaction underpriced") !== -1) {
+          //   const newWallet = WalletFactory.createWalletFromString(data.from);
+          // }
+          reject(e);
+          throw e;
+          // return Observable.empty();
+        }).subscribe(async (response) => {
+          data.redeemData = response;
+          const waitJob = this.informRedeem.createJob(data);
+          await waitJob.save();
+          resolve();
         });
-
       });
     } else {
-      return true;
+      return QueueMessages.BotDone(true);
     }
   }
 }

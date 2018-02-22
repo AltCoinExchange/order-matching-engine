@@ -28,7 +28,7 @@ export class Bot {
   private throttle: BehaviorSubject<any> = new BehaviorSubject<any>(1);
 
   private orders: any[] = [];
-  private processingOrder: any = null;
+  public processingOrder: any = null;
 
   private queue;
 
