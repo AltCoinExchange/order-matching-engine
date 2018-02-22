@@ -72,9 +72,9 @@ export class DbHelper {
   public static async IsOrderActive(order: IOrder): Promise<boolean> {
     const coll = await DbHelper.GetCollection(Collections.ORDERS);
     const now = new Date(Date.now());
-    const result = await coll.find({id: order.id, status: "new", expiration: { $gte: now }}).toArray();
+    const result = await coll.count({id: order.id, status: "disconnected"});
     await coll.conn.close();
-    return result.length > 0;
+    return result === 0;
   }
 
   public static async GetMatchedOrders(order: IOrder) {
