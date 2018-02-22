@@ -53,6 +53,7 @@ export class AsyncBot {
   private async watchDog() {
     setInterval(async (e) => {
       const ids = {
+        stalled: 0,
         waiting: 0,
         active: 0,
         succeeded: 0,
@@ -62,6 +63,7 @@ export class AsyncBot {
       };
       for (const j of this.jobs) {
         for (const q of j.GetQueues()) {
+          const stalledJobs = await q.checkStalledJobs(300000);
           const activeJobs = await q.checkHealth(); // q.getJobs("active", {start: 0, end: 25});
           // const waitingJobs = await // q.getJobs("waiting", {start: 0, end: 25});
           ids.waiting = ids.waiting + activeJobs.waiting;
@@ -70,9 +72,10 @@ export class AsyncBot {
           ids.failed = ids.failed + activeJobs.failed;
           ids.delayed = ids.delayed + activeJobs.delayed;
           ids.newestJob = ids.newestJob + activeJobs.newestJob;
+          ids.stalled = ids.stalled + stalledJobs;
         }
       }
-      // console.log(ids);
+      console.log(ids);
       if (ids.active === 0) {
         this.bot.processingOrder = null;
       }

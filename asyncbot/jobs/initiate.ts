@@ -5,6 +5,7 @@ import {AsyncBotDb} from "../common/asyncbotdb";
 import {AppConfig} from "../../bot/config/app";
 import "rxjs/add/operator/catch";
 import {QueueMessages} from '../common/queuemessages';
+import {App} from '../config/app';
 
 const Queue = require("bee-queue");
 
@@ -13,8 +14,8 @@ export class Initiate implements IJob {
   private informInitiate;
 
   constructor() {
-    this.queue = new Queue("bot-initiate", {removeOnSuccess: true, removeOnFailure: true});
-    this.informInitiate = new Queue("bot-inform-initiate", {removeOnSuccess: true, removeOnFailure: true});
+    this.queue = new Queue("bot-initiate", App.queueGlobalConfig);
+    this.informInitiate = new Queue("bot-inform-initiate", App.queueGlobalConfig);
   }
 
   public GetQueues(): any[] {
@@ -44,7 +45,7 @@ export class Initiate implements IJob {
           // }
           // throw e;
           reject(e);
-          throw e;
+          return Observable.empty();
           // return Observable.empty();
         }).subscribe(async (initData) => {
           const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);

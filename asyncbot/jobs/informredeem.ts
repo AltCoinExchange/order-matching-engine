@@ -4,6 +4,7 @@ import {IWallet, WalletFactory} from "../../bot/common/wallet/WalletFactory";
 import {AsyncBotDb} from "../common/asyncbotdb";
 import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {QueueMessages} from '../common/queuemessages';
+import {App} from '../config/app';
 const Queue = require("bee-queue");
 
 export class InformRedeem implements IJob {
@@ -12,8 +13,8 @@ export class InformRedeem implements IJob {
   private mqtt: MoscaService;
 
   constructor() {
-    this.queue = new Queue("bot-inform-redeem", {removeOnSuccess: true, removeOnFailure: true});
-    this.botQueue = new Queue("bot", {removeOnSuccess: true, removeOnFailure: true});
+    this.queue = new Queue("bot-inform-redeem", );
+    this.botQueue = new Queue("bot", App.queueGlobalConfig);
     this.mqtt = new MoscaService();
   }
 
@@ -42,7 +43,7 @@ export class InformRedeem implements IJob {
           //   const newWallet = WalletFactory.createWalletFromString(data.from);
           // }
           reject(e);
-          throw e;
+          return Observable.empty();
           // return Observable.empty();
         }).subscribe(async (informed) => {
           const waitJob = this.botQueue.createJob(data);

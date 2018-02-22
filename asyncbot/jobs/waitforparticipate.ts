@@ -4,6 +4,7 @@ import {IWallet, WalletFactory} from "../../bot/common/wallet/WalletFactory";
 import {AsyncBotDb} from "../common/asyncbotdb";
 import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {QueueMessages} from '../common/queuemessages';
+import {App} from '../config/app';
 const Queue = require("bee-queue");
 
 export class WaitForParticipate implements IJob {
@@ -12,8 +13,8 @@ export class WaitForParticipate implements IJob {
   private mqtt: MoscaService;
 
   constructor() {
-    this.queue = new Queue("bot-wait-for-participate", {removeOnSuccess: true, removeOnFailure: true});
-    this.redeem = new Queue("bot-redeem", {removeOnSuccess: true, removeOnFailure: true});
+    this.queue = new Queue("bot-wait-for-participate", App.queueGlobalConfig);
+    this.redeem = new Queue("bot-redeem", App.queueGlobalConfig);
     this.mqtt = new MoscaService();
   }
 
@@ -42,7 +43,7 @@ export class WaitForParticipate implements IJob {
           //   const newWallet = WalletFactory.createWalletFromString(data.from);
           // }
           reject(e);
-          throw e;
+          return Observable.empty();
           // return Observable.empty();
         }).subscribe(async (response) => {
           const waitJob = this.redeem.createJob(data);

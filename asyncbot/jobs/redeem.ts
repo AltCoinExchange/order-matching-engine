@@ -6,6 +6,7 @@ import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {RedeemData} from "altcoinio-wallet";
 import "rxjs/add/operator/catch";
 import {QueueMessages} from '../common/queuemessages';
+import {App} from '../config/app';
 const Queue = require("bee-queue");
 
 export class Redeem implements IJob {
@@ -14,8 +15,8 @@ export class Redeem implements IJob {
   private mqtt: MoscaService;
 
   constructor() {
-    this.queue = new Queue("bot-redeem", {removeOnSuccess: true, removeOnFailure: true});
-    this.informRedeem = new Queue("bot-inform-redeem", {removeOnSuccess: true, removeOnFailure: true});
+    this.queue = new Queue("bot-redeem", App.queueGlobalConfig);
+    this.informRedeem = new Queue("bot-inform-redeem", App.queueGlobalConfig);
     this.mqtt = new MoscaService();
   }
 
@@ -46,7 +47,7 @@ export class Redeem implements IJob {
           //   const newWallet = WalletFactory.createWalletFromString(data.from);
           // }
           reject(e);
-          throw e;
+          return Observable.empty();
           // return Observable.empty();
         }).subscribe(async (response) => {
           data.redeemData = response;

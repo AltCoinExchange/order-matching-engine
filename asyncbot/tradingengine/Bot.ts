@@ -67,7 +67,7 @@ export class Bot {
       // TODO: check if we sent the order
       if (matchedOrder.side === "b") {
         const waitJob = this.queue.createJob(matchedOrder);
-        await waitJob.retries(10).save();
+        await waitJob.save();
       }
     });
   }
