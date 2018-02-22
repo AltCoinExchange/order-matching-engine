@@ -9,6 +9,11 @@ export class AsyncBot {
   private jobs: IJob[] = [];
   private bot: Bot;
 
+  /**
+   * Start the bot
+   * @returns {Promise<void>}
+   * @constructor
+   */
   public async Start() {
     this.queue = new Queue("bot");
     this.jobs = JobFactory.CreateJobs(App.jobs, this.queue);
@@ -20,7 +25,8 @@ export class AsyncBot {
   }
 
   /**
-   * Start all jobs
+   * Start all processors (this could be on the separate
+   * process or on the separate machine)
    */
   private async startJobs() {
     for (const i of this.jobs) {
@@ -40,6 +46,10 @@ export class AsyncBot {
     });
   }
 
+  /**
+   * Watch for whole process for inactive jobs
+   * @returns {Promise<void>}
+   */
   private async watchDog() {
     setInterval(async (e) => {
       const ids = {
@@ -66,6 +76,6 @@ export class AsyncBot {
       if (ids.active === 0) {
         this.bot.processingOrder = null;
       }
-    }, 60000);
+    }, App.watchdogSeconds * 1000);
   }
 }

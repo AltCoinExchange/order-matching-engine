@@ -6,6 +6,14 @@ import {InformRedeem} from "../jobs/informredeem";
 import {WaitForParticipate} from "../jobs/waitforparticipate";
 
 export class JobFactory {
+
+  /**
+   * Create processing job
+   * @param {string} jobName
+   * @param queue
+   * @returns {IJob}
+   * @constructor
+   */
   public static CreateJob(jobName: string, queue): IJob {
     if (jobName === "initiate") {
       return new Initiate();
@@ -20,6 +28,13 @@ export class JobFactory {
     }
   }
 
+  /**
+   * Create all processing jobs
+   * @param {string[]} jobs
+   * @param queue
+   * @returns {IJob[]}
+   * @constructor
+   */
   public static CreateJobs(jobs: string[], queue): IJob[] {
     const result = [];
     for (const i of jobs) {
