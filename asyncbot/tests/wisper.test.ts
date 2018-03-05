@@ -10,7 +10,15 @@ async function bootstrap() {
 
   // Wait for initiate
   await whisper.waitForInitiate(link).subscribe((data) => {
-    console.log("Received data: ", data);
+    console.log("Received initiate data: ", data);
+  });
+
+  await whisper.waitForParticipate(link).subscribe((data) => {
+    console.log("Received participate data: ", data);
+  });
+
+  await whisper.waitForBRedeem(link).subscribe((data) => {
+    console.log("Received redeem data: ", data);
   });
 
   const whisper2 = new WhisperService(EthConfiguration.hosts[2]);
@@ -18,6 +26,8 @@ async function bootstrap() {
   // Send initiate
   const initiateParams = new InitiateParams();
   await whisper2.informInitiate(link, initiateParams);
+  await whisper2.informParticipate(link, initiateParams);
+  await whisper2.informBRedeem(link, initiateParams);
 }
 
 bootstrap();

@@ -12,8 +12,12 @@ export class WhisperService {
   public client;
   private identity;
   protected web3: any;
-  private topic: any;
   private sig: any;
+
+  // TOPICS
+  private initTopic: any;
+  private participateTopic: any;
+  private redeemTopic: any;
 
   public messages: Subject<any> = new Subject();
 
@@ -22,7 +26,9 @@ export class WhisperService {
     this.web3 = new Web3(wsProvider);
     this.web3.defaultAccount = configuration.defaultWallet;
     this.client = this.web3.shh;
-    this.topic = this.web3.utils.fromAscii("altc");
+    this.initTopic = this.web3.utils.fromAscii("alti");
+    this.participateTopic = this.web3.utils.fromAscii("altp");
+    this.redeemTopic = this.web3.utils.fromAscii("altr");
   }
 
   /**
@@ -31,62 +37,100 @@ export class WhisperService {
    * @constructor
    */
   public async Start() {
-    console.log(await this.client.getInfo());
+    // console.log(await this.client.getInfo());
     this.identity = await this.client.generateSymKeyFromPassword("altcoinio");
-    console.log(this.identity);
 
-    await this.client.subscribe("messages", { topics: [this.topic], symKeyID: this.identity }).on("data", (data) => {
-      const msg = { topic: data.topic, message:  JSON.parse(this.web3.utils.hexToAscii(data.payload.toString())) };
-      this.messages.next(msg);
-    });
+    // Setup handlers (issue at the web3 - cannot subscribe to multiple topics
+    for (const i of [this.initTopic, this.participateTopic, this.redeemTopic]) {
+      await this.client.subscribe("messages", { topics: [i], symKeyID: this.identity }).on("data", (data) => this.subscribeHandler(data));
+    }
   }
 
+  /**
+   * Subscribe handler
+   * @param data
+   */
+  private subscribeHandler(data) {
+    const msg = {
+      topic: data.topic,
+      message:  JSON.parse(this.web3.utils.hexToAscii(data.payload.toString())),
+    };
+    this.messages.next(msg);
+  }
+
+  /**
+   * Wait for initiate for specific order id
+   * @param link
+   * @returns {Observable<InitiateData>}
+   */
   public waitForInitiate(link): Observable<InitiateData> {
-    console.log("waitForInitiate", this.topic, link);
-    // this.subscribeToTopic(this.topic);
-    return this.onMessage(this.topic, link.order_id).map((msg) => {
-      return msg.message;
-    });
+    console.log("waitForInitiate", this.initTopic, link);
+    return this.onMessage(this.initTopic, link.order_id).map((msg) => msg.message);
   }
 
+  /**
+   * Inform initate using order id
+   * @param link
+   * @param {InitiateParams} data
+   * @returns {Promise<Observable<boolean>>}
+   */
   public async informInitiate(link, data: InitiateParams) {
     (data as any).order_id = link.order_id;
-    await this.sendMsg(this.topic, isString(data) ? data : JSON.stringify(data));
+    await this.send(this.initTopic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
   }
 
+  /**
+   * Wait for participate for specific order id
+   * @param link
+   * @returns {Observable<InitiateData>}
+   */
   public waitForParticipate(link): Observable<InitiateData> {
-    console.log("waitForParticipate", this.topic, link);
-    this.subscribeToTopic(this.topic);
-    return this.onMessage(this.topic, link.order_id).map((msg) => msg.message);
+    console.log("waitForParticipate", this.participateTopic, link);
+    return this.onMessage(this.participateTopic, link.order_id).map((msg) => msg.message);
   }
 
-  public informParticipate(link, data: InitiateParams) {
-    console.log("informParticipate", this.topic, link);
-    this.sendMsg(this.topic, isString(data) ? data : JSON.stringify(data));
+  /**
+   * Inform participate using order id
+   * @param link
+   * @param {InitiateParams} data
+   * @returns {Promise<Observable<boolean>>}
+   */
+  public async informParticipate(link, data: InitiateParams) {
+    (data as any).order_id = link.order_id;
+    await this.send(this.participateTopic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
   }
 
+  /**
+   * Wait for redeem usig order id
+   * @param link
+   * @returns {Observable<InitiateData>}
+   */
   public waitForBRedeem(link): Observable<InitiateData> {
-    console.log("waitForBRedeem", this.topic, link);
-    this.subscribeToTopic(this.topic);
-    return this.onMessage(this.topic, link.order_id).map((msg) => JSON.parse(msg.message));
+    console.log("waitForBRedeem", this.redeemTopic, link);
+    return this.onMessage(this.redeemTopic, link.order_id).map((msg) => msg.message);
   }
 
+  /**
+   * Inform redeem using order id
+   * @param link
+   * @param {InitiateParams} data
+   * @returns {Promise<Observable<boolean>>}
+   */
   public async informBRedeem(link, data: InitiateParams) {
-    console.log("informBRedeem", this.topic, link);
-    await this.sendMsg(this.topic, isString(data) ? data : JSON.stringify(data));
+    (data as any).order_id = link.order_id;
+    console.log("informBRedeem", this.redeemTopic, link);
+    await this.send(this.redeemTopic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
   }
 
-  private async sendMsg(topic, data) {
-    await this.send(topic, data);
-  }
-
-  private subscribeToTopic(topic) {
-    this.client.subscribe(topic);
-  }
-
+  /**
+   * Filter orders
+   * @param topic
+   * @param oid
+   * @returns {Observable<any>}
+   */
   private onMessage(topic, oid) {
     return this.messages.filter((data) => data.topic === topic && data.message.order_id === oid);
   }
@@ -102,7 +146,7 @@ export class WhisperService {
       symKeyID: this.identity, // encrypts using the sym key ID
       // sig: this.sig, // signs the message using the keyPair ID
       ttl: 10,
-      topic: this.topic,
+      topic,
       payload: this.web3.utils.fromAscii(msg),
       powTime: 3,
       powTarget: 0.5
