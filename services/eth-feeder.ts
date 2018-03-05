@@ -15,7 +15,7 @@ export class EthFeeder extends FeederService {
 
   constructor(blockNum?) {
     super();
-    this.ethEngine = new EthScanner(null, EthConfiguration.hosts[0], null);
+    this.ethEngine = new EthScanner(EthConfiguration.hosts[0]);
     this.startService(blockNum);
   }
 

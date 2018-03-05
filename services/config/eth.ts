@@ -14,5 +14,10 @@ export const EthConfiguration = {
             contractAddress: "0x6d5ae9dd8f1a2582deb1b096915313459f11ba70",
             defaultWallet: "0x21Fa313f2144f6E1348d91FbF0C6A3a5EEcC056D",
         },
+        {
+            wshost: "ws://localhost:8546",
+            contractAddress: "0x6d5ae9dd8f1a2582deb1b096915313459f11ba70",
+            defaultWallet: "0x21Fa313f2144f6E1348d91FbF0C6A3a5EEcC056D",
+        },
     ],
 };

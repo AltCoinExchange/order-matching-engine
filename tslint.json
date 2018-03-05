@@ -3,7 +3,7 @@
     "rules": {
         "ordered-imports": false,
         "object-literal-sort-keys": false,
-        "quotemark": true,
+        "quotemark": false,
         "max-classes-per-file": [7],
         "radix": false,
         "trailing-comma": false,
