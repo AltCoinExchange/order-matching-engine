@@ -4,25 +4,27 @@ import {QueueMessages} from '../common/queuemessages';
 import {App} from '../config/app';
 import {IJob} from '../../library/interfaces/IJob';
 import {MoscaService} from '../../library/clients/Mqtt';
+import {IAtomicSwap} from '../../library/clients/interfaces/IAtomicSwap';
+import {CommunicationFactory} from '../../library/clients/CommunicationFactory';
 const Queue = require("bee-queue");
 
 export class WaitForParticipate implements IJob {
   public queue;
   private redeem;
-  private mqtt: MoscaService;
+  private comm: IAtomicSwap;
 
   constructor() {
     this.queue = new Queue("bot-wait-for-participate", App.queueGlobalConfig);
     this.redeem = new Queue("bot-redeem", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
   }
 
   public GetQueues(): any[] {
     return [this.queue, this.redeem];
   }
 
-  public Start() {
+  public async Start() {
     console.log("Starting wait for participate listening");
+    this.comm = await CommunicationFactory.GetCommunicationProvider(App);
     this.queue.process("initiate", async (job) => {
       return await this.waitForParticipate(job.data);
     });
@@ -36,7 +38,7 @@ export class WaitForParticipate implements IJob {
   private async waitForParticipate(data) {
     if (AsyncBotDb.isOrderActive(data.data)) {
       return new Promise((resolve, reject) => {
-        this.mqtt.waitForParticipate(data.data).catch((e) => {
+        this.comm.waitForParticipate(data.data).catch((e) => {
           // console.log("Initiate error", e);
           // if (e.toString().indexOf("Error: Returned error: replacement transaction underpriced") !== -1) {
           //   const newWallet = WalletFactory.createWalletFromString(data.from);

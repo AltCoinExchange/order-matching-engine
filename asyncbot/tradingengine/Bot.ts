@@ -13,8 +13,10 @@ import "rxjs/add/operator/switchMap";
 import {Observable} from "rxjs/Observable";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import {OrderMatchingClient} from '../../library/clients/OrderMatchingClient';
-import {MoscaService} from '../../library/clients/Mqtt';
 import {WalletFactory} from '../../library/wallet/WalletFactory';
+import {IAtomicSwap} from '../../library/clients/interfaces/IAtomicSwap';
+import {CommunicationFactory} from '../../library/clients/CommunicationFactory';
+import {App} from '../config/app';
 const Queue = require("bee-queue");
 
 /**
@@ -23,7 +25,7 @@ const Queue = require("bee-queue");
 export class Bot {
 
   private orderMatchingClient: OrderMatchingClient;
-  private mqtt: MoscaService;
+  private comm: IAtomicSwap;
 
   private throttle: BehaviorSubject<any> = new BehaviorSubject<any>(1);
 
@@ -34,7 +36,6 @@ export class Bot {
 
   constructor() {
     this.orderMatchingClient = new OrderMatchingClient();
-    this.mqtt = new MoscaService();
     this.queue = new Queue("bot-initiate");
   }
 
@@ -44,6 +45,7 @@ export class Bot {
    */
   public async Start() {
     console.log("START");
+    this.comm = await CommunicationFactory.GetCommunicationProvider(App);
     // Get active orders if any and process the first one
     this.throttle.subscribe((val) => {
       this.orderMatchingClient.OrderSubscribe().subscribe((orders) => {

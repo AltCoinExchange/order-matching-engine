@@ -1,27 +1,19 @@
 import {isString} from "util";
-import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import * as mqtt from "mqtt";
 import {InitiateData, InitiateParams} from "altcoinio-wallet";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import {AppConfig} from "../../config/app";
+import {MoscaBase} from '../communication/MoscaBase';
+import {IAtomicSwap} from './interfaces/IAtomicSwap';
 
 const INITIATE = "/inititate/";
 const PARTICIPATE = "PARTICIPATE";
 const BREDEEM = "BREDEEM";
 
-export class MoscaService {
-  public client;
-
-  public messages: Subject<any> = new Subject();
-
-  constructor() {
-    this.client = mqtt.connect(AppConfig.mqtt);
-    this.client.on("message", (topic, message) => {
-      this.messages.next({topic, message: message.toString()});
-    });
+export class MoscaService extends MoscaBase implements IAtomicSwap {
+  constructor(config?) {
+    super(config);
   }
 
   public waitForInitiate(link): Observable<InitiateData> {
@@ -33,7 +25,7 @@ export class MoscaService {
 
   public informInitiate(link, data: InitiateParams) {
     const topic = INITIATE + (typeof link === "string" ? link : link.order_id);
-    this.sendMsg(topic, isString(data) ? data : JSON.stringify(data));
+    this.send(topic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
   }
 
@@ -47,7 +39,7 @@ export class MoscaService {
   public informParticipate(link, data: InitiateParams) {
     const topic = PARTICIPATE + (typeof link === "string" ? link : link.order_id);
     console.log("informParticipate", topic, link);
-    this.sendMsg(topic, isString(data) ? data : JSON.stringify(data));
+    this.send(topic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
   }
 
@@ -61,19 +53,7 @@ export class MoscaService {
   public informBRedeem(link, data: InitiateParams) {
     const topic = BREDEEM + (typeof link === "string" ? link : link.order_id);
     console.log("informBRedeem", topic, link);
-    this.sendMsg(topic, isString(data) ? data : JSON.stringify(data));
+    this.send(topic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
-  }
-
-  private sendMsg(topic, data) {
-    this.client.publish(topic, data);
-  }
-
-  private subscribeToTopic(topic) {
-    this.client.subscribe(topic);
-  }
-
-  private onMessage(topic) {
-    return this.messages.filter((data) => data.topic === topic);
   }
 }

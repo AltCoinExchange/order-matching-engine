@@ -15,5 +15,15 @@ export const AppConfig = {
   ethKey10: "tprv8ZgxMBicQKsPdL6csat7jz9J7sqkFnkFFMLdE4E1o69EPw5KQ5MNuWa1TaxfpvarcKTAWVNsSYLmhu7NUjiokboQMrc7UBGGKwdUSbXWxE2",
   orderApi: "https://service1.altcoin.io:3001",
   wsOrderApi: "ws://localhost:3002",
-  mqtt: "wss://swap.altcoin.io:3001/",
+  communication: {
+    type: "mqtt",
+    whisper: {
+      wshost: "ws://localhost:8546",
+      ttl: 10,
+      powTime: 3,
+      powTarget: 0.5,
+      symKeyPassword: "altcoinio"
+    },
+    mqtt: "wss://swap.altcoin.io:3001/",
+  },
 };

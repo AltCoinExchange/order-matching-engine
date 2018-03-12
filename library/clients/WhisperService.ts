@@ -4,9 +4,10 @@ import {InitiateData, InitiateParams} from "altcoinio-wallet";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import {WhisperBase} from './WhisperBase';
+import {WhisperBase} from '../communication/WhisperBase';
+import {IAtomicSwap} from './interfaces/IAtomicSwap';
 
-export class WhisperService extends WhisperBase {
+export class WhisperService extends WhisperBase implements IAtomicSwap {
   // TOPICS
   private initTopic: any;
   private participateTopic: any;
@@ -17,21 +18,6 @@ export class WhisperService extends WhisperBase {
     this.initTopic = this.web3.utils.fromAscii("alti");
     this.participateTopic = this.web3.utils.fromAscii("altp");
     this.redeemTopic = this.web3.utils.fromAscii("altr");
-  }
-
-  /**
-   * Add new identity
-   * @returns {Promise<void>}
-   * @constructor
-   */
-  public async Start() {
-    // console.log(await this.client.getInfo());
-    this.identity = await this.client.generateSymKeyFromPassword("altcoinio");
-
-    // Setup handlers (issue at the web3 - cannot subscribe to multiple topics
-    for (const i of [this.initTopic, this.participateTopic, this.redeemTopic]) {
-      await this.client.subscribe("messages", { topics: [i], symKeyID: this.identity }).on("data", (data) => this.subscribeHandler(data));
-    }
   }
 
   /**

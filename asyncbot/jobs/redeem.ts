@@ -5,26 +5,23 @@ import "rxjs/add/operator/catch";
 import {QueueMessages} from '../common/queuemessages';
 import {App} from '../config/app';
 import {IJob} from '../../library/interfaces/IJob';
-import {MoscaService} from '../../library/clients/Mqtt';
 import {WalletFactory} from '../../library/wallet/WalletFactory';
 const Queue = require("bee-queue");
 
 export class Redeem implements IJob {
   public queue;
   private informRedeem;
-  private mqtt: MoscaService;
 
   constructor() {
     this.queue = new Queue("bot-redeem", App.queueGlobalConfig);
     this.informRedeem = new Queue("bot-inform-redeem", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
   }
 
   public GetQueues(): any[] {
     return [this.queue, this.informRedeem];
   }
 
-  public Start() {
+  public async Start() {
     console.log("Starting redeem listening");
     this.queue.process("initiate", async (job) => {
       return await this.redeem(job.data);

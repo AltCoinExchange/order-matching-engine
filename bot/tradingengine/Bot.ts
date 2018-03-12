@@ -15,9 +15,10 @@ import { Subject } from "rxjs/Subject";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import {DbHelper} from "../../src/modules/helpers/db.helper";
 import {OrderMatchingClient} from '../../library/clients/OrderMatchingClient';
-import {MoscaService} from '../../library/clients/Mqtt';
 import {IWallet, WalletFactory} from '../../library/wallet/WalletFactory';
 import {IOrder} from '../../library/interfaces/IOrder';
+import {IAtomicSwap} from '../../library/clients/interfaces/IAtomicSwap';
+import {CommunicationFactory} from '../../library/clients/CommunicationFactory';
 
 /**
  * Automatic trading bot
@@ -25,7 +26,7 @@ import {IOrder} from '../../library/interfaces/IOrder';
 export class Bot {
 
   private orderMatchingClient: OrderMatchingClient;
-  private mqtt: MoscaService;
+  private comm: IAtomicSwap;
 
   private throttle: BehaviorSubject<any> = new BehaviorSubject<any>(1);
 
@@ -34,7 +35,7 @@ export class Bot {
 
   constructor() {
     this.orderMatchingClient = new OrderMatchingClient();
-    this.mqtt = new MoscaService();
+    // this.comm = new MoscaService(AppConfig);
   }
 
   /**
@@ -43,6 +44,7 @@ export class Bot {
    */
   public async Start() {
     console.log("START");
+    this.comm = await CommunicationFactory.GetCommunicationProvider(AppConfig);
     // Get active orders if any and process the first one
     this.throttle.subscribe((val) => {
       this.orderMatchingClient.OrderSubscribe().subscribe((orders) => {
@@ -121,9 +123,9 @@ export class Bot {
           if (this.isOrderActive(data)) {
             const walletAddress = WalletFactory.createWalletFromString(data.to).getAddress(AppConfig.wif);
             (initData as any).address = walletAddress;
-            this.mqtt.informInitiate(data, initData).subscribe((informed) => {
+            this.comm.informInitiate(data, initData).subscribe((informed) => {
               if (this.isOrderActive(data)) {
-                this.mqtt.waitForParticipate(data).timeout(300000).catch((err) => {
+                this.comm.waitForParticipate(data).timeout(300000).catch((err) => {
                   return this.retSuccess();
                 }).subscribe((response) => {
                   this.redeemOrder(initData, data);
@@ -182,7 +184,7 @@ export class Bot {
       }
       return Observable.empty();
     }).subscribe((redeemData) => {
-      this.mqtt.informBRedeem(link, redeemData).subscribe((redeemed) => {
+      this.comm.informBRedeem(link, redeemData).subscribe((redeemed) => {
         console.log("Redeemed successfully.");
         this.retSuccess();
       });

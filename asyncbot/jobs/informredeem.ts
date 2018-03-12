@@ -3,26 +3,27 @@ import {AsyncBotDb} from "../common/asyncbotdb";
 import {QueueMessages} from '../common/queuemessages';
 import {App} from '../config/app';
 import {IJob} from '../../library/interfaces/IJob';
-import {MoscaService} from '../../library/clients/Mqtt';
+import {CommunicationFactory} from '../../library/clients/CommunicationFactory';
+import {IAtomicSwap} from '../../library/clients/interfaces/IAtomicSwap';
 const Queue = require("bee-queue");
 
 export class InformRedeem implements IJob {
   public queue;
   private botQueue;
-  private mqtt: MoscaService;
+  private comm: IAtomicSwap;
 
   constructor() {
-    this.queue = new Queue("bot-inform-redeem", );
+    this.queue = new Queue("bot-inform-redeem", App.queueGlobalConfig);
     this.botQueue = new Queue("bot", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
   }
 
   public GetQueues(): any[] {
     return [this.queue, this.botQueue];
   }
 
-  public Start() {
+  public async Start() {
     console.log("Starting inform redeem listening");
+    this.comm = await CommunicationFactory.GetCommunicationProvider(App);
     this.queue.process("initiate", async (job, done) => {
       return await this.informRedeem(job.data, done);
     });
@@ -36,7 +37,7 @@ export class InformRedeem implements IJob {
   private async informRedeem(data, done) {
     if (AsyncBotDb.isOrderActive(data)) {
       return new Promise((resolve, reject) => {
-        this.mqtt.informBRedeem(data.data, data.redeemData).catch((e) => {
+        this.comm.informBRedeem(data.data, data.redeemData).catch((e) => {
           // console.log("Initiate error", e);
           // if (e.toString().indexOf("Error: Returned error: replacement transaction underpriced") !== -1) {
           //   const newWallet = WalletFactory.createWalletFromString(data.from);

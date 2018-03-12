@@ -22,7 +22,7 @@ export class Initiate implements IJob {
     return [this.queue, this.informInitiate];
   }
 
-  public Start() {
+  public async Start() {
     console.log("Starting initiate listening");
     this.queue.process("initiate", async (job) => {
       return await this.initiateOrder(job.data);

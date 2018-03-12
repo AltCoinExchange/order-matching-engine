@@ -30,7 +30,7 @@ export class AsyncBot {
    */
   private async startJobs() {
     for (const i of this.jobs) {
-      i.Start();
+      await i.Start();
     }
 
     await this.bot.Start();

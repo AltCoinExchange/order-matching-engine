@@ -4,7 +4,7 @@ import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
 import * as Web3 from "web3/src";
-import {ICommProvider} from '../../../dsrc/interfaces/ICommProvider';
+import {ICommProvider} from '../interfaces/ICommProvider';
 
 export class WhisperBase implements ICommProvider {
   public client;
@@ -31,7 +31,7 @@ export class WhisperBase implements ICommProvider {
    */
   public async Start() {
     // console.log(await this.client.getInfo());
-    this.identity = await this.client.generateSymKeyFromPassword("altcoinio");
+    this.identity = await this.client.generateSymKeyFromPassword(this.configuration.symKeyPassword);
 
     // Setup handlers (issue at the web3 - cannot subscribe to multiple topics
     for (const i of this.topics) {
