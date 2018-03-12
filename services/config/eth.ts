@@ -8,16 +8,25 @@ export const EthConfiguration = {
             wshost: "wss://swap.altcoin.io:8550",
             contractAddress: "0x6d5ae9dd8f1a2582deb1b096915313459f11ba70",
             defaultWallet: "0xb483f5a8c6ebA74Dc1bcef9D167E6B86Caa4C773",
+            ttl: 10,
+            powTime: 3,
+            powTarget: 0.5
         },
         {
             wshost: "wss://swap.altcoin.io:8550",
             contractAddress: "0x6d5ae9dd8f1a2582deb1b096915313459f11ba70",
             defaultWallet: "0x21Fa313f2144f6E1348d91FbF0C6A3a5EEcC056D",
+            ttl: 10,
+            powTime: 3,
+            powTarget: 0.5
         },
         {
             wshost: "ws://localhost:8546",
             contractAddress: "0x6d5ae9dd8f1a2582deb1b096915313459f11ba70",
             defaultWallet: "0x21Fa313f2144f6E1348d91FbF0C6A3a5EEcC056D",
+            ttl: 10,
+            powTime: 3,
+            powTarget: 0.5
         },
     ],
 };

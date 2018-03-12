@@ -1,7 +1,7 @@
-import {IJob} from "../interfaces/job";
 import {App} from "../config/app";
 import {JobFactory} from "./JobFactory";
 import {Bot} from "./Bot";
+import {IJob} from '../../library/interfaces/IJob';
 const Queue = require("bee-queue");
 
 export class AsyncBot {

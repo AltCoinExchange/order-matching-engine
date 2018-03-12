@@ -1,7 +1,4 @@
-import {OrderMatchingClient} from "../../bot/common/clients/OrderMatchingClient";
-import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {IOrder} from "../../src/modules/helpers/long-poll.service";
-import {IWallet, WalletFactory} from "../../bot/common/wallet/WalletFactory";
 import {AppConfig} from "../../bot/config/app";
 import {BotConfig} from "../../bot/config/bot";
 const uuidv4 = require("uuid/v4");
@@ -15,6 +12,9 @@ import "rxjs/add/operator/withLatestFrom";
 import "rxjs/add/operator/switchMap";
 import {Observable} from "rxjs/Observable";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import {OrderMatchingClient} from '../../library/clients/OrderMatchingClient';
+import {MoscaService} from '../../library/clients/Mqtt';
+import {WalletFactory} from '../../library/wallet/WalletFactory';
 const Queue = require("bee-queue");
 
 /**

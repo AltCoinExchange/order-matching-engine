@@ -1,5 +1,5 @@
-import {ServiceBase} from "../bot/common/ServiceBase";
 import {AsyncBot} from "./tradingengine/AsyncBot";
+import {ServiceBase} from '../library/ServiceBase';
 // import * as Wallet from "../wallet";
 // import * as Mongoose from "mongoose";
 // import {Collection} from "mongoose";

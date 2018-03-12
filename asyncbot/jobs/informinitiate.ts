@@ -1,10 +1,9 @@
-import {IJob} from "../interfaces/job";
 import {Observable} from "rxjs/Observable";
-import {IWallet, WalletFactory} from "../../bot/common/wallet/WalletFactory";
 import {AsyncBotDb} from "../common/asyncbotdb";
-import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {QueueMessages} from '../common/queuemessages';
 import {App} from '../config/app';
+import {IJob} from '../../library/interfaces/IJob';
+import {MoscaService} from '../../library/clients/Mqtt';
 const Queue = require("bee-queue");
 
 export class InformInitiate implements IJob {

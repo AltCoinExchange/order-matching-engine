@@ -1,9 +1,9 @@
-import {IJob} from "../interfaces/job";
 import {Initiate} from "../jobs/initiate";
 import {Redeem} from "../jobs/redeem";
 import {InformInitiate} from "../jobs/informinitiate";
 import {InformRedeem} from "../jobs/informredeem";
 import {WaitForParticipate} from "../jobs/waitforparticipate";
+import {IJob} from '../../library/interfaces/IJob';
 
 export class JobFactory {
 

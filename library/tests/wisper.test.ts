@@ -1,6 +1,6 @@
-import {WhisperService} from "../../bot/common/clients/Whisper";
 import {EthConfiguration} from "../../services/config/eth";
 import {InitiateParams} from 'altcoinio-wallet';
+import {WhisperService} from '../clients/Whisper';
 
 async function bootstrap() {
   // Create whisper service
