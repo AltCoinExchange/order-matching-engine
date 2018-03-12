@@ -1,12 +1,12 @@
-import {IJob} from "../interfaces/job";
 import {Observable} from "rxjs/Observable";
-import {IWallet, WalletFactory} from "../../bot/common/wallet/WalletFactory";
 import {AsyncBotDb} from "../common/asyncbotdb";
-import {MoscaService} from "../../bot/common/clients/Mqtt";
 import {RedeemData} from "altcoinio-wallet";
 import "rxjs/add/operator/catch";
 import {QueueMessages} from '../common/queuemessages';
 import {App} from '../config/app';
+import {IJob} from '../../library/interfaces/IJob';
+import {MoscaService} from '../../library/clients/Mqtt';
+import {WalletFactory} from '../../library/wallet/WalletFactory';
 const Queue = require("bee-queue");
 
 export class Redeem implements IJob {

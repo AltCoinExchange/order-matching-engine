@@ -1,31 +1,19 @@
-import {debug, isString} from 'util';
-import {Subject} from "rxjs/Subject";
+import {isString} from 'util';
 import {Observable} from "rxjs/Observable";
 import {InitiateData, InitiateParams} from "altcoinio-wallet";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import * as Web3 from "web3/src";
-import {AppConfig} from "../../config/app";
+import {WhisperBase} from './WhisperBase';
 
-export class WhisperService {
-  public client;
-  private identity;
-  protected web3: any;
-  private sig: any;
-
+export class WhisperService extends WhisperBase {
   // TOPICS
   private initTopic: any;
   private participateTopic: any;
   private redeemTopic: any;
 
-  public messages: Subject<any> = new Subject();
-
   constructor(public configuration) {
-    const wsProvider = new (Web3 as any).providers.WebsocketProvider(configuration.wshost);
-    this.web3 = new Web3(wsProvider);
-    this.web3.defaultAccount = configuration.defaultWallet;
-    this.client = this.web3.shh;
+    super(configuration);
     this.initTopic = this.web3.utils.fromAscii("alti");
     this.participateTopic = this.web3.utils.fromAscii("altp");
     this.redeemTopic = this.web3.utils.fromAscii("altr");
@@ -44,18 +32,6 @@ export class WhisperService {
     for (const i of [this.initTopic, this.participateTopic, this.redeemTopic]) {
       await this.client.subscribe("messages", { topics: [i], symKeyID: this.identity }).on("data", (data) => this.subscribeHandler(data));
     }
-  }
-
-  /**
-   * Subscribe handler
-   * @param data
-   */
-  private subscribeHandler(data) {
-    const msg = {
-      topic: data.topic,
-      message:  JSON.parse(this.web3.utils.hexToAscii(data.payload.toString())),
-    };
-    this.messages.next(msg);
   }
 
   /**
@@ -123,33 +99,5 @@ export class WhisperService {
     console.log("informBRedeem", this.redeemTopic, link);
     await this.send(this.redeemTopic, isString(data) ? data : JSON.stringify(data));
     return Observable.of(true);
-  }
-
-  /**
-   * Filter orders
-   * @param topic
-   * @param oid
-   * @returns {Observable<any>}
-   */
-  private onMessage(topic, oid) {
-    return this.messages.filter((data) => data.topic === topic && data.message.order_id === oid);
-  }
-
-  /**
-   * Send the message
-   * @param topic (4 letter topic)
-   * @param msg string
-   * @returns {Promise<void>}
-   */
-  private async send(topic, msg) {
-    await this.client.post({
-      symKeyID: this.identity, // encrypts using the sym key ID
-      // sig: this.sig, // signs the message using the keyPair ID
-      ttl: 10,
-      topic,
-      payload: this.web3.utils.fromAscii(msg),
-      powTime: 3,
-      powTarget: 0.5
-    });
   }
 }

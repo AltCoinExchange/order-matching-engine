@@ -1,7 +1,3 @@
-import {OrderMatchingClient} from "../common/clients/OrderMatchingClient";
-import {MoscaService} from "../common/clients/Mqtt";
-import {IOrder} from "../../src/modules/helpers/long-poll.service";
-import {IWallet, WalletFactory} from "../common/wallet/WalletFactory";
 import {AppConfig} from "../config/app";
 import {RedeemData} from "altcoinio-wallet";
 import {BotConfig} from "../config/bot";
@@ -18,6 +14,10 @@ import {Observable} from "rxjs/Observable";
 import { Subject } from "rxjs/Subject";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import {DbHelper} from "../../src/modules/helpers/db.helper";
+import {OrderMatchingClient} from '../../library/clients/OrderMatchingClient';
+import {MoscaService} from '../../library/clients/Mqtt';
+import {IWallet, WalletFactory} from '../../library/wallet/WalletFactory';
+import {IOrder} from '../../library/interfaces/IOrder';
 
 /**
  * Automatic trading bot
