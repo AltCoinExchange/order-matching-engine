@@ -1,5 +1,3 @@
-const util = require("util");
-const abci = require("js-abci");
 import {ABCIBase} from '../abci/ABCIBase';
 
 export class CounterApp extends ABCIBase {

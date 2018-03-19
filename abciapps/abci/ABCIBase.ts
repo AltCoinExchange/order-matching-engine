@@ -1,5 +1,7 @@
-const abci = require("js-abci");
+import {CodeType} from './ABCIEnums';
+
 const util = require("util");
+import {Server} from "../abci/Server";
 
 export interface IABCIResponse {
   code: any;
@@ -40,8 +42,8 @@ export class ABCIBase {
 
   public Start() {
     console.log("ABCI Application started at the port 46658");
-    const appServer = new abci.Server(this);
-    appServer.server.listen(46658);
+    const appServer = new Server(this);
+    appServer.Start(46658);
   }
 
   /**
@@ -55,7 +57,7 @@ export class ABCIBase {
     if (nonce.status === ABCI_STATUS.ERROR) {
       return nonce.cb;
     }
-    return callback({code: abci.CodeType_OK});
+    return callback({code: CodeType.OK});
   }
 
   /**
@@ -83,11 +85,6 @@ export class ABCIBase {
     });
   }
 
-  protected returnOK(callback, status: ABCI_STATUS) {
-
-    return { cb: callback({ code: abci.CodeType_OK }), status };
-  }
-
   /**
    * Check if nonce is valid
    * @param request
@@ -104,9 +101,9 @@ export class ABCIBase {
 
     const txValue = txBytes.readUIntBE(0, txBytes.length);
     if (txValue < this.txCount) {
-      return { cb: {code: abci.CodeType.BadNonce, log: `Nonce is too low. Got ${txValue}, expected >= ${this.txCount}`}, status: ABCI_STATUS.ERROR };
+      return { cb: {code: CodeType.BadNonce, log: `Nonce is too low. Got ${txValue}, expected >= ${this.txCount}`}, status: ABCI_STATUS.ERROR };
     }
 
-    return { cb: {code: abci.CodeType_OK}, status: ABCI_STATUS.OK };
+    return { cb: {code: CodeType.OK}, status: ABCI_STATUS.OK };
   }
 }
