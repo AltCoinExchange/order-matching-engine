@@ -1,3 +1,20 @@
+export enum MessageType {
+  NullMessage = 0x00,
+
+  Echo            = 0x01,
+  Flush           = 0x02,
+  Info            = 0x03,
+  SetOption       = 0x04,
+  Exception       = 0x05,
+  DeliverTx       = 0x11,
+  CheckTx         = 0x12,
+  Commit          = 0x13,
+  Query           = 0x14,
+  InitChain       = 0x15,
+  BeginBlock      = 0x16,
+  EndBlock        = 0x17,
+}
+
 export enum CodeType {
   OK                    = 0,
 

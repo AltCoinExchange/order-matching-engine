@@ -1,2 +1,2 @@
 require('ts-node/register');
-require('./clientTest');
+require('./' + process.argv[2]);

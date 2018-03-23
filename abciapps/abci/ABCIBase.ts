@@ -1,7 +1,7 @@
 import {CodeType} from './ABCIEnums';
 
 const util = require("util");
-import {Server} from "../abci/Server";
+import {Server} from './Server';
 
 export interface IABCIResponse {
   code: any;
@@ -92,9 +92,11 @@ export class ABCIBase {
    * @returns {IABCIInternalResponse}
    */
   protected checkNonce(request, callback: (data: IABCIResponse) => any): IABCIInternalResponse {
+    console.log(request);
     let txBytes = request.tx.toBuffer();
     if (txBytes.length >= 2 && txBytes.slice(0, 2) === "0x") {
-      const hexString = txBytes.toString("ascii", 2);
+      const hexString = txBytes.toString("" +
+        "ascii", 2);
       const hexBytes = new Buffer(hexString, "hex");
       txBytes = hexBytes;
     }
