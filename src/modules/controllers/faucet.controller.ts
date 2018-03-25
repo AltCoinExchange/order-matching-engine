@@ -1,6 +1,5 @@
 import { Controller, Get, Param } from "@nestjs/common";
 import { EthereumWallet } from "altcoinio-wallet";
-import { WalletFactory } from "../../../bot/common/wallet/WalletFactory";
 import { AppConfig } from "../../../bot/config/app";
 
 @Controller("faucet")
