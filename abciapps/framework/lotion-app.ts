@@ -3,6 +3,7 @@ import { apps } from './registry';
 import { routes } from './route';
 import { Currency } from '../entity/Currency';
 import {IState} from '../entity/interfaces/IState';
+import {MatchedOrder} from '../entity/MatchedOrder';
 
 const lotion = require('lotion');
 
@@ -13,7 +14,8 @@ export class LotionApp {
       initialState: {
         count: 0,
         channels: {},
-        currencies: new Map<string, Currency>()
+        currencies: new Map<string, Currency>(),
+        matchedOrders: new Map<string, MatchedOrder>()
       } as IState,
       logTendermint: true,
       // genesis: 'genesis.json',

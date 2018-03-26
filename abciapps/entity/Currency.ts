@@ -1,5 +1,5 @@
 /**
- * Rate model is based on liquidity of the system.
+ * Currency model is based on liquidity of the system.
  */
 export class Currency {
   public shortName: string;
