@@ -1,19 +1,19 @@
 import { Channel } from '../entity/Channel';
 import { apps } from './registry';
 import { routes } from './route';
+import { Currency } from '../entity/Currency';
+import {IState} from '../entity/interfaces/IState';
 
 const lotion = require('lotion');
-
-interface IState {
-  channels: Map<string, Channel>;
-}
 
 export class LotionApp {
   constructor() {
     apps.forEach((App) => new App());
     const app = lotion({
       initialState: {
-        channels: {}
+        count: 0,
+        channels: {},
+        currencies: new Map<string, Currency>()
       } as IState,
       logTendermint: true,
       // genesis: 'genesis.json',
@@ -24,7 +24,7 @@ export class LotionApp {
       // devMode: true
     });
 
-    app.use((state, tx) => {
+    app.use((state: IState, tx) => {
       routes[tx.action](state, tx.payload);
     });
 
