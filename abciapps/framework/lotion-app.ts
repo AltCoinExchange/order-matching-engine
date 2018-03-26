@@ -1,15 +1,20 @@
+import { Channel } from '../entity/Channel';
 import { apps } from './registry';
 import { routes } from './route';
 
 const lotion = require('lotion');
+
+interface IState {
+  channels: Map<string, Channel>;
+}
 
 export class LotionApp {
   constructor() {
     apps.forEach((App) => new App());
     const app = lotion({
       initialState: {
-        count: 0
-      },
+        channels: {}
+      } as IState,
       logTendermint: true,
       // genesis: 'genesis.json',
       // peers: ['localhost:46660'],
