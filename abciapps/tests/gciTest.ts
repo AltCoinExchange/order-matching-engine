@@ -4,7 +4,6 @@ const { connect } = require('lotion');
 const APPGCI = "8ef3e51c93a3472b00064afb14ea0446da462817b01b16a00c6c031ac97a0252";
 
 async function getApp() {
-  console.log('poceo');
   const { state, send } = await connect(APPGCI, { liteTimeout: 10000 });
   const count = await state;
   console.log(count);

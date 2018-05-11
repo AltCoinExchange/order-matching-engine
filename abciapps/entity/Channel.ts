@@ -1,4 +1,5 @@
-import { Receipt } from './Receipt';
+
+import {Currency} from './Currency';
 
 export class Channel {
   public email: string;
@@ -9,5 +10,5 @@ export class Channel {
 
   public token: string;
 
-  public receipts: Receipt[];
+  public currencies: Currency[];
 }

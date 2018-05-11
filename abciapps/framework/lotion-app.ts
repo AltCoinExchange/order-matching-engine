@@ -4,12 +4,21 @@ import { routes } from './route';
 import { Currency } from '../entity/Currency';
 import {IState} from '../entity/interfaces/IState';
 import {MatchedOrder} from '../entity/MatchedOrder';
-
+import * as Web3 from "web3/src";
 const lotion = require('lotion');
 
 export class LotionApp {
-  constructor() {
-    apps.forEach((App) => new App());
+  // Ethereum web3
+  protected web3: any;
+
+  constructor(configuration) {
+
+    // Initialize ETH
+    const wsProvider = new (Web3 as any).providers.WebsocketProvider(configuration.wshost);
+    this.web3 = new Web3(wsProvider);
+
+    // Create lotion APP
+    // apps.forEach((App) => new App());
     const app = lotion({
       initialState: {
         count: 0,
