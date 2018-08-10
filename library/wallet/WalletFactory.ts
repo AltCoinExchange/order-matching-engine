@@ -1,6 +1,6 @@
 import { InitiateData, ParticipateData, RedeemData } from "altcoinio-wallet";
 import { Observable } from "rxjs/Observable";
-import { AppConfig } from "../../config/app";
+import { AppConfig } from "../../bot/config/app";
 import { BtcWallet } from "./BtcWallet";
 import { EthTokenWallet } from "./EthTokenWallet";
 import { EthWallet } from "./EthWallet";
