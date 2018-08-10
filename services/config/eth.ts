@@ -5,7 +5,7 @@ export const EthConfiguration = {
     appkey: "GgZtjS6WPDNAePNM43ZdPoJ1Ap61RU3jnsgjHqELxgHX",
     hosts: [
         {
-            wshost: "wss://swap.altcoin.io:8550",
+            wshost: "ws://localhost:8546",
             contractAddress: "0x6d5ae9dd8f1a2582deb1b096915313459f11ba70",
             defaultWallet: "0xb483f5a8c6ebA74Dc1bcef9D167E6B86Caa4C773",
             ttl: 10,
