@@ -1,8 +1,7 @@
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {Observable} from "rxjs/Observable";
-import {IOrder} from "../../../src/modules/helpers/long-poll.service";
+import {IOrder} from "../../src/modules/helpers/long-poll.service";
 import {MsgOrder} from "../messages/msg-order";
-import {AppConfig} from "../../config/app";
 
 const W3CWebSocket = require("websocket").w3cwebsocket;
 
@@ -15,8 +14,8 @@ export class OrderMatchingClient {
   private id: number;
   private static instance: OrderMatchingClient;
 
-  constructor() {
-    this.client = new W3CWebSocket(AppConfig.wsOrderApi);
+  constructor(private appConfig) {
+    this.client = new W3CWebSocket(appConfig.wsOrderApi);
     this.client.onerror = this.onConnectFailed;
     this.client.onopen = this.onConnectSuccess;
     this.client.onclose = this.onConnectClose;

@@ -14,7 +14,7 @@ export class InformRedeem implements IJob {
   constructor() {
     this.queue = new Queue("bot-inform-redeem", );
     this.botQueue = new Queue("bot", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
+    this.mqtt = new MoscaService(App);
   }
 
   public GetQueues(): any[] {

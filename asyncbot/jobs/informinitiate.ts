@@ -14,7 +14,7 @@ export class InformInitiate implements IJob {
   constructor() {
     this.queue = new Queue("bot-inform-initiate", App.queueGlobalConfig);
     this.waitForParticipate = new Queue("bot-wait-for-participate", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
+    this.mqtt = new MoscaService(App);
   }
 
   public GetQueues(): any[] {

@@ -17,7 +17,7 @@ export class Redeem implements IJob {
   constructor() {
     this.queue = new Queue("bot-redeem", App.queueGlobalConfig);
     this.informRedeem = new Queue("bot-inform-redeem", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
+    this.mqtt = new MoscaService(App);
   }
 
   public GetQueues(): any[] {

@@ -33,8 +33,8 @@ export class Bot {
   private processingOrder: any = null;
 
   constructor() {
-    this.orderMatchingClient = new OrderMatchingClient();
-    this.mqtt = new MoscaService();
+    this.orderMatchingClient = new OrderMatchingClient(AppConfig);
+    this.mqtt = new MoscaService(AppConfig);
   }
 
   /**

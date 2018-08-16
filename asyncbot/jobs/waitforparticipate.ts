@@ -14,7 +14,7 @@ export class WaitForParticipate implements IJob {
   constructor() {
     this.queue = new Queue("bot-wait-for-participate", App.queueGlobalConfig);
     this.redeem = new Queue("bot-redeem", App.queueGlobalConfig);
-    this.mqtt = new MoscaService();
+    this.mqtt = new MoscaService(App);
   }
 
   public GetQueues(): any[] {

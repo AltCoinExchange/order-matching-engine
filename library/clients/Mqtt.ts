@@ -6,7 +6,6 @@ import {InitiateData, InitiateParams} from "altcoinio-wallet";
 import "rxjs/add/observable/of";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/map";
-import {AppConfig} from "../../config/app";
 
 const INITIATE = "/inititate/";
 const PARTICIPATE = "PARTICIPATE";
@@ -17,8 +16,8 @@ export class MoscaService {
 
   public messages: Subject<any> = new Subject();
 
-  constructor() {
-    this.client = mqtt.connect(AppConfig.mqtt);
+  constructor(private appConfig) {
+    this.client = mqtt.connect(appConfig.mqtt);
     this.client.on("message", (topic, message) => {
       this.messages.next({topic, message: message.toString()});
     });
